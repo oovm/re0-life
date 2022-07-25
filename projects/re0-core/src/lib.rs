@@ -1,5 +1,5 @@
 mod errors;
-mod world;
+pub mod world;
 
 pub use errors::{Error, Result};
 

@@ -2,8 +2,10 @@
 members = ["projects/*"]
 default-members = [
     "projects/re0-core",
+    "projects/re0-pest",
 ]
 exclude = [
+    "projects/re0-data",
     "projects/.DS_Store",
 ]
 
