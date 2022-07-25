@@ -15,8 +15,3 @@ pub struct WorldConfig {
     name_type: NameMode,
     name_data: Dict<Vec<String>>
 }
-
-#[derive(Debug, Clone)]
-pub enum NameMode {
-    Chinese
-}
