@@ -1,5 +1,5 @@
-use rand::RngCore;
 pub use self::dict::{Dict, get_flatten_vec};
+pub use self::mode::{NameConfig, NameMode};
 
 mod mode;
 mod dict;
@@ -12,6 +12,5 @@ pub struct World {
 }
 #[derive(Debug, Clone)]
 pub struct WorldConfig {
-    name_type: NameMode,
-    name_data: Dict<Vec<String>>
+    name: NameConfig,
 }
