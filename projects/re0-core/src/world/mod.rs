@@ -1,22 +1,22 @@
-
+use rand::RngCore;
 pub use self::dict::{Dict, get_flatten_vec};
-
-
 
 mod mode;
 mod dict;
 
+
+
 #[derive(Debug, Clone)]
 pub struct World {
-    mode: WorldMode,
+    mode: WorldConfig,
 }
 #[derive(Debug, Clone)]
-pub struct WorldMode {
-    name_type: NameSetting,
+pub struct WorldConfig {
+    name_type: NameMode,
     name_data: Dict<Vec<String>>
 }
 
 #[derive(Debug, Clone)]
-pub enum NameSetting {
+pub enum NameMode {
     Chinese
 }

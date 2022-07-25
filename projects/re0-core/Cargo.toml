@@ -1,5 +1,5 @@
 [package]
-name = "sub_projects"
+name = "re0-core"
 publish = false
 version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
@@ -11,6 +11,8 @@ license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
+rand = {version = "0.8.5", features = ["small_rng"]}
+
 
 [dev-dependencies]
 
