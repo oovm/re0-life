@@ -9,8 +9,8 @@ pub struct Dict<T> {
 }
 
 impl<T> Debug for Dict<T>
-where
-    T: Debug,
+    where
+        T: Debug,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut w = &mut f.debug_struct("");
@@ -32,8 +32,8 @@ impl<T> Dict<T> {
         self.inner.get(key)
     }
     pub fn put<S>(&mut self, key: S, value: T)
-    where
-        S: Into<String>,
+        where
+            S: Into<String>,
     {
         self.inner.insert(key.into(), value);
     }

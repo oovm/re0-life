@@ -5,11 +5,11 @@ mod mode;
 mod dict;
 
 
-
 #[derive(Debug, Clone)]
 pub struct World {
     mode: WorldConfig,
 }
+
 #[derive(Debug, Clone)]
 pub struct WorldConfig {
     name: NameConfig,

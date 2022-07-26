@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
 use distributions::Bernoulli;
-use rand::{distributions, distributions::WeightedIndex, seq::SliceRandom, Rng, RngCore};
+use rand::{distributions, distributions::WeightedIndex, Rng, RngCore, seq::SliceRandom};
 use rand::distributions::Distribution;
-use crate::world::{get_flatten_vec, Dict, WorldConfig};
+
+use crate::world::{Dict, get_flatten_vec, WorldConfig};
 
 #[derive(Debug, Clone)]
 pub struct NameConfig {
