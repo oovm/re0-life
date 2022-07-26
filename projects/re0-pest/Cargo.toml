@@ -1,11 +1,11 @@
 [package]
-name = "arc-pest"
-version = "0.4.0"
+name = "re0-pest"
+version = "0.1.0"
 authors = ["Aster <galaster@foxmail.com>"]
 description = "Arc Readable Configuration Parser via Pest"
 license = "MPL-2.0"
 readme = "../../readme.md"
-repository = "https://github.com/doki-land/arc-rs"
+repository = "https://github.com/oovm/re0-life"
 exclude = ["/tests/*"]
 edition = "2018"
 

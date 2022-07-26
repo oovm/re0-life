@@ -1,25 +1,25 @@
 use std::{
-    ops::{AddAssign, Range},
+    ops::{AddAssign, Range, SubAssign},
     str::FromStr,
 };
-use std::ops::SubAssign;
 
 use chrono::{Duration, NaiveDateTime};
 use rand::Rng;
 
 use crate::{value::NumberLiteral, world::Dict, Re0Error, Result};
+
 mod parsing;
 
 #[doc = include_str!("time_manager.md")]
 pub struct TimeManager {
-    mode: TimeMode,
+    pub(crate) mode: TimeMode,
     /// 起始时间范围
-    start_range: (NaiveDateTime, NaiveDateTime),
-    birth_day: NaiveDateTime,
-    start_time: NaiveDateTime,
-    current: NaiveDateTime,
+    pub(crate) start_range: (NaiveDateTime, NaiveDateTime),
+    pub(crate) birth_day: NaiveDateTime,
+    pub(crate) start_time: NaiveDateTime,
+    pub(crate) current: NaiveDateTime,
     /// 时间流逝倍率
-    speed: f32,
+    pub(crate) speed: f32,
 }
 
 pub enum TimeMode {
@@ -27,8 +27,6 @@ pub enum TimeMode {
     /// 每回合年数 +1
     EarthYear,
 }
-
-
 
 impl TimeManager {
     pub fn new(data: &Dict<Vec<String>>) -> Self {

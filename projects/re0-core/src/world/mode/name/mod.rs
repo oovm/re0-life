@@ -1,29 +1,22 @@
 use std::str::FromStr;
 
 use distributions::Bernoulli;
-use rand::{distributions,  Rng, seq::SliceRandom};
-use rand::distributions::Distribution;
+use rand::{distributions, distributions::Distribution, seq::SliceRandom, Rng};
 
-use crate::world::{Dict, get_flatten_vec, WorldConfig};
+use crate::world::{get_flatten_vec, Dict, WorldConfig};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct NameConfig {
-    mode: NameMode,
-    preset: Vec<String>,
-    last_name: Vec<String>,
-    mid_name: Vec<String>,
-    first_name: Vec<String>,
+    pub(crate) mode: NameMode,
+    pub(crate) preset: Vec<String>,
+    pub(crate) last_name: Vec<String>,
+    pub(crate) mid_name: Vec<String>,
+    pub(crate) first_name: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
 pub enum NameMode {
     Chinese,
-}
-
-impl Default for NameMode {
-    fn default() -> Self {
-        Self::Chinese
-    }
 }
 
 impl FromStr for NameMode {

@@ -4,19 +4,21 @@ use std::{
 };
 use std::collections::btree_set::Range;
 use std::path::PathBuf;
-
+mod from_pest;
 mod display;
 
 #[derive(Debug, Clone)]
 pub enum Re0ErrorKind {
     UnknownError,
     SimpleError(String),
+    SyntaxError(String)
 }
 #[derive(Debug, Clone)]
 pub struct Re0Error {
-    kind: Re0ErrorKind,
+    kind: Box<Re0ErrorKind>,
     level: Re0ErrorLevel,
     file: Option<String>,
+    position: (u32, u32)
 }
 
 
@@ -29,8 +31,6 @@ pub enum Re0ErrorLevel {
 }
 
 pub type Result<T> = std::result::Result<T, Re0Error>;
-
-
 
 impl Re0Error {}
 
@@ -58,6 +58,10 @@ impl Re0Error {
     #[inline]
     pub fn with_file(self, file: PathBuf) -> Self {
         self.with_file_info(file.to_str().unwrap_or("").to_string())
+    }
+    #[inline]
+    pub fn with_line_column(self, line: u32, column: u32) -> Self {
+        Self { position: (line, column), ..self }
     }
     #[inline]
     pub fn simple_error<S>(msg: S) -> Self

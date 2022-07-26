@@ -1,16 +1,17 @@
-pub use self::dict::{Dict, get_flatten_vec};
-pub use self::mode::{NameConfig, NameMode};
+pub use crate::value::{get_flatten_vec, Dict};
+
+pub use self::mode::*;
 
 mod mode;
-mod dict;
-
+mod parser;
 
 #[derive(Debug, Clone)]
 pub struct World {
     mode: WorldConfig,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct WorldConfig {
     name: NameConfig,
+    time: TimeManager,
 }

@@ -1,4 +1,7 @@
 use crate::{Re0Error, Result};
+pub use self::dict::{Dict, get_flatten_vec};
+mod dict;
+
 
 pub enum Value {
     Number(f64, String),
