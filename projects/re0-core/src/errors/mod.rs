@@ -8,7 +8,7 @@ use std::path::PathBuf;
 #[derive(Debug, Clone)]
 pub enum Re0ErrorKind {
     UnknownError,
-    InvalidEnumeration(String),
+    SimpleError(String),
 }
 #[derive(Debug, Clone)]
 pub struct Re0Error {
@@ -23,6 +23,7 @@ impl Default for Re0Error {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum Re0ErrorLevel {
     Hide,
     Info,
@@ -57,21 +58,21 @@ impl From<usize> for Re0ErrorLevel {
 impl Re0Error {
     #[inline]
     pub fn with_level(self, level: impl Into<Re0ErrorLevel>) -> Self {
-        Self { level: level.into(), ..Self }
+        Self { level: level.into(), ..self }
     }
     #[inline]
     pub fn with_file_info(self, file: impl Into<String>) -> Self {
-        Self { file: Some(file.into()), ..Self }
+        Self { file: Some(file.into()), ..self }
     }
     #[inline]
     pub fn with_file(self, file: PathBuf) -> Self {
         self.with_file_info(file.to_str().unwrap_or("").to_string())
     }
     #[inline]
-    pub fn invalid_enumeration<S>(msg: S) -> Self
+    pub fn simple_error<S>(msg: S) -> Self
     where
         S: Into<String>,
     {
-        Self { kind: Re0ErrorKind::InvalidEnumeration(msg.into()), ..Self::default() }
+        Self { kind: Re0ErrorKind::SimpleError(msg.into()), ..Self::default() }
     }
 }
