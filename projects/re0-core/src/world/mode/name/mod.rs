@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use distributions::Bernoulli;
-use rand::{distributions, distributions::WeightedIndex, Rng, RngCore, seq::SliceRandom};
+use rand::{distributions,  Rng, seq::SliceRandom};
 use rand::distributions::Distribution;
 
 use crate::world::{Dict, get_flatten_vec, WorldConfig};

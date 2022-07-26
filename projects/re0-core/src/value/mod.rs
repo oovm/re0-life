@@ -5,15 +5,18 @@ pub enum Value {
 pub struct NumberLiteral {
     // Either
     value: Result<f64, i64>,
-    suffix: String
+    suffix: String,
 }
 
-
 impl NumberLiteral {
-    pub fn get_value<T>(&self) {
+    pub fn get_value<T>(&self) -> T
+    where
+        T: From<f64>,
+        T: From<i64>,
+    {
         match self.value {
-            Ok(n) => {T::from(n)}
-            Err(n) => {T::from(n)}
+            Ok(n) => T::from(n),
+            Err(n) => T::from(n),
         }
     }
     pub fn get_unit(&self) -> &str {

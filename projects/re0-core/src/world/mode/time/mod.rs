@@ -1,12 +1,12 @@
-use std::{ops::AddAssign, str::FromStr};
-
-use chrono::{
-    format::{DelayedFormat, StrftimeItems},
-    DateTime, Duration, NaiveDateTime,
+use std::{
+    ops::{AddAssign, Range},
+    str::FromStr,
 };
+
+use chrono::{Duration, NaiveDateTime};
 use rand::Rng;
-use crate::value::NumberLiteral;
-use crate::world::Dict;
+
+use crate::{value::NumberLiteral, world::Dict, Re0Error, Result};
 
 pub struct TimeManager {
     mode: TimeMode,
@@ -23,12 +23,11 @@ pub enum TimeMode {
 }
 
 impl FromStr for TimeMode {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    type Err = Re0Error;
+    fn from_str(s: &str) -> Result<Self> {
         let out = match s {
             "地球年" | "earth_year" => TimeMode::EarthYear,
-            _ => return Err(()),
+            _ => return Err(Re0Error::invalid_enumeration(format!("`{}` 不是一个合法的时间模式", s)).with_level(1)),
         };
         Ok(out)
     }
@@ -44,7 +43,7 @@ impl TimeManager {
     }
 
     pub fn restart_time(&mut self, rng: &mut impl Rng) {
-        let time: i64 = rng.gen_range(self.start.0.timestamp(), self.start.1.timestamp());
+        let time: i64 = rng.gen_range(Range { start: self.start.0.timestamp(), end: self.start.1.timestamp() });
         self.current = NaiveDateTime::from_timestamp(time, 0)
     }
     pub fn next_round(&self, time: &mut NaiveDateTime) {
@@ -55,8 +54,14 @@ impl TimeManager {
     pub fn next_year(&self, time: &mut NaiveDateTime) {
         let time = Duration::days(365);
     }
-    pub fn next_by(&self, time: &NumberLiteral) {
-        let time = Duration::days(30);
+    pub fn next_by(&self, time: &NumberLiteral) -> Result<()> {
+        match time.get_unit() {
+            "秒" | "s" => time.get_value::<f32>() * 1000.0f32,
+            "分" | "m" => time.get_value() * 1000.0f32,
+            "时" | "h" => time.get_value() * 1000.0f32,
+            _ => {}
+        }
+        Ok(())
     }
     pub fn format_time(&self, time: &NaiveDateTime) -> String {
         match self.mode {
