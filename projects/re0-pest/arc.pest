@@ -1,0 +1,109 @@
+program = _{
+    SOI ~ heads* ~ statement* ~ EOI
+  | SOI ~ data ~ EOI
+}
+heads = _ {
+    import_statement|extend_statement
+}
+statement = _{
+    SEPARATOR
+  | EmptyLine{1,}
+//| include_statement
+  | dict_pair
+  | dict_scope
+  | list_scope
+//| dict_literal // For json compatibility
+}
+EmptyLine  = @{WHITESPACE* ~ NEWLINE}
+/*====================================================================================================================*/
+//!#C678DD: Import
+// include_statement = {"@include" ~ "(" ~ StringNormal ~ ("," ~ SYMBOL) ~ ")"}
+import_statement =  {"#import" ~ SYMBOL ~ StringNormal ~ "as" ~ namespace}
+extend_statement =  {"#extend" ~ SYMBOL? ~ StringNormal}
+/*====================================================================================================================*/
+dict_scope   = _{dict_head ~ dict_pair*}
+dict_head    = !{"{" ~ Dot* ~ namespace ~ "}"}
+dict_pair    = !{namespace ~ Set ~ (data|RestLineText)}
+dict_literal =  {
+    SYMBOL? ~  "{" ~ "}"
+  | SYMBOL? ~ "{" ~ (SEPARATOR? ~ dict_pair)+ ~ SEPARATOR? ~ "}"
+}
+Set          = @{"="|":"}
+/*====================================================================================================================*/
+list_scope   = _{list_head ~ list_pair*}
+list_head    = !{"[" ~ Dot* ~ namespace ~ "]"}
+list_pair    =  {
+    Insert ~ dict_pair+
+  | Append ~ WHITE_SPACE* ~ (!data ~ ListString|data)
+}
+list_literal =  {
+    SYMBOL? ~ "[" ~ "]"
+  | SYMBOL? ~ "[" ~ (SEPARATOR? ~ (data|RestLineText))+ ~ SEPARATOR? ~ "]"
+}
+RestLineText = @{(!(NEWLINE|"]"|"}") ~ ANY)+}
+ListString   = @{(!(">"|"^"|"["|"{") ~ ANY)+}
+Insert       = @{"^"}
+Append       = @{">"}
+/*====================================================================================================================*/
+data = !{
+    Special|Cite|Byte|Number
+  | String
+  | dict_literal|list_literal
+}
+/*====================================================================================================================*/
+///#D19A66
+Special = @{"true"|"false"|"null"}
+Byte    = @{"0" ~ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC|"_"|"-")}
+/*====================================================================================================================*/
+///#56B6C2
+Cite = ${"$" ~ namespace}
+/*====================================================================================================================*/
+//!#D19A66: SignedNumber
+Number       = ${(Exponent|SignedNumber) ~ SYMBOL?}
+SignedNumber = ${Sign? ~ (Decimal|DecimalBad|Integer)}
+Decimal      = ${Integer ~ Dot ~ ("_"? ~ ASCII_DIGIT)*}
+DecimalBad   = ${Integer ~ Dot|Dot ~ ("_"? ~ ASCII_DIGIT)*}
+//Integer    = @{"0"|ASCII_NONZERO_DIGIT ~ ("_"? ~ ASCII_DIGIT)*}
+Integer      = @{ASCII_DIGIT ~ ("_"? ~ ASCII_DIGIT)*}
+Exponent     = ${SignedNumber ~ ("e"|"E"|"**") ~ Sign? ~ ASCII_DIGIT+}
+Sign         = @{"+"|"-"}
+/*====================================================================================================================*/
+//!#3C963C: String|InlineString|InlineString2|RestLineText
+//!#98C379: StringQuotation|StringAccent
+//!#D19A66: StringApostrophe
+String       = !{SYMBOL? ~ (StringNormal|StringEmpty)}
+StringEmpty  = @{S1{2}|S2{2}}
+StringNormal = ${
+    S1{1} ~ PUSH(S1*) ~ (NS1)+ ~ POP ~ S1{1}
+  | S2{1} ~ PUSH(S2*) ~ (NS2)+ ~ POP ~ S2{1}
+//| "‹" ~ NS3 ~ "›"
+//| "«" ~ NS4 ~ "»"
+}
+NS1 = @{(!(S1 ~ PEEK) ~ ANY)+}
+NS2 = @{
+    "\\u" ~ ASCII_HEX_DIGIT{4}
+  | "\\u" ~ "{" ~(ASCII_HEX_DIGIT|SPACE_SEPARATOR)+ ~ "}"
+  | "\\" ~ ANY
+  | (!(S2 ~ PEEK) ~ ANY)+
+}
+// NS3 = @{(!"»" ~ ANY)+}
+// NS4 = @{Escape ~ ANY|(!"»" ~ ANY)+}
+S1 = @{"'"}
+S2 = @{"\""}
+/*====================================================================================================================*/
+///#61AFEF
+namespace =  {Key ~ (Dot ~ Key)*}
+Key       = _{StringNormal|SYMBOL|SignedNumber}
+SYMBOL    = @{(XID_START|ExtraID) ~ (XID_CONTINUE|ExtraID)*}
+ExtraID   = @{"_"}
+Dot       = @{"."}
+/*====================================================================================================================*/
+// NEWLINE = @{"\r" ~ "\n"|"\r"|"\n"}
+
+///Gray
+COMMENT          =  {MultiLineComment|LineComment}
+WHITESPACE       = _{NEWLINE|SPACE_SEPARATOR|"\t"}
+LineComment      = ${"//" ~ (!NEWLINE ~ ANY)*}
+MultiLineComment = ${"/*" ~ (MultiLineComment | !"*/" ~ ANY)* ~ "*/"}
+
+SEPARATOR  = @{","|";"}

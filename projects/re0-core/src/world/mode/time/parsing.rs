@@ -16,8 +16,8 @@ impl NumberLiteral {
     pub fn get_time(&self) -> Result<i64> {
         let ms = match self.get_unit() {
             "秒" | "s" => self.get_sec(),
-            "分" | "m" => self.get_minutes(),
-            "时" | "h" => self.get_hours(),
+            "分钟" | "分" | "m" => self.get_minutes(),
+            "小时" | "时" | "h" => self.get_hours(),
             "天" | "days" | "day" | "d" => self.get_days(),
             "天前" | "days_ago" | "day_ago" => self.get_days(),
             "星期" | "周" | "week" | "w" => self.get_weeks(),

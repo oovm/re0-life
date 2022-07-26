@@ -5,6 +5,8 @@ use std::{
 use std::collections::btree_set::Range;
 use std::path::PathBuf;
 
+mod display;
+
 #[derive(Debug, Clone)]
 pub enum Re0ErrorKind {
     UnknownError,
@@ -17,11 +19,6 @@ pub struct Re0Error {
     file: Option<String>,
 }
 
-impl Default for Re0Error {
-    fn default() -> Self {
-        Self { kind: Re0ErrorKind::UnknownError, level: Re0ErrorLevel::Info, file: None }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub enum Re0ErrorLevel {
@@ -33,13 +30,7 @@ pub enum Re0ErrorLevel {
 
 pub type Result<T> = std::result::Result<T, Re0Error>;
 
-impl Error for Re0Error {}
 
-impl Display for Re0Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
 
 impl Re0Error {}
 
