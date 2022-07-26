@@ -1,6 +1,6 @@
-mod arc;
+mod re0;
 
-pub use arc::{ArcParser, Rule};
+pub use re0::{Re0Parser, Rule};
 pub use pest::{
     self,
     error::Error,
