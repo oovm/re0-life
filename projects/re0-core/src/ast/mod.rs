@@ -1,13 +1,11 @@
 pub use self::{
-    dict::{get_flatten_vec, Dict},
-    key::Atom,
-    numeric::NumberLiteral
+    atom_value::{Atom, NumberLiteral},
+    collection::{get_flatten_vec, Dict},
 };
 
-mod dict;
-mod key;
+mod atom_value;
+mod collection;
 mod parser;
-mod numeric;
 
 #[derive(Debug, Clone, Default)]
 pub struct ASTNode {
@@ -18,15 +16,18 @@ pub struct ASTNode {
 pub enum ASTKind {
     Root(Vec<ASTNode>),
     Declare(DeclareStatement),
+    IfStatement(Box<IfStatement>),
     Block(Vec<ASTNode>),
-    Key(Atom),
+    Pair(Atom, ASTNode),
     Number(NumberLiteral),
     Symbol(String),
     Never,
 }
 
+#[derive(Debug, Clone)]
 pub struct IfStatement {
     if_true: bool,
+    condition: ASTNode,
     children: Vec<ASTNode>,
 }
 
@@ -43,7 +44,11 @@ impl ASTNode {
 
     pub fn declare_statement(keyword: &str, symbol: &str, modifiers: Vec<String>, children: Vec<ASTNode>) -> Self {
         let s = DeclareStatement { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers, children };
-        Self { kind: ASTKind::Declare(s)}
+        Self { kind: ASTKind::Declare(s) }
+    }
+
+    pub fn if_statement(if_true: bool, condition: ASTNode, children: Vec<ASTNode>) -> Self {
+        Self { kind: ASTKind::IfStatement(box IfStatement { if_true, condition, children }) }
     }
 
     pub fn block(children: Vec<ASTNode>) -> Self {
@@ -54,20 +59,12 @@ impl ASTNode {
         Self { kind: ASTKind::Symbol(symbol.to_string()) }
     }
 
-    pub fn key<K>(input: K) -> Self
-    where
-        K: Into<Atom>,
-    {
-        Self { kind: ASTKind::Key(input.into()) }
-    }
-
     pub fn number<N>(input: N) -> Self
-        where
-            N: Into<NumberLiteral>,
+    where
+        N: Into<NumberLiteral>,
     {
         Self { kind: ASTKind::Number(input.into()) }
     }
-
 }
 
 impl From<ASTNode> for String {
@@ -86,4 +83,3 @@ pub struct DeclareStatement {
     modifiers: Vec<String>,
     children: Vec<ASTNode>,
 }
-

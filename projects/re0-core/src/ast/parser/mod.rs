@@ -3,11 +3,10 @@ use std::{mem::take, ops::AddAssign, str::FromStr};
 use re0_pest::{Pair, Parser, Re0Parser, Rule};
 
 use crate::{
-    ast::{ASTKind, ASTNode},
+    ast::{ASTKind, ASTNode, NumberLiteral},
     world::{World, WorldConfig},
     Re0Error, Result,
 };
-use crate::ast::NumberLiteral;
 
 mod operators;
 
@@ -82,7 +81,7 @@ impl ParseContext {
         }
         Ok(out)
     }
-    fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<()> {
+    fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let mut key = ASTNode::default();
         let mut value = ASTNode::default();
         for pair in pairs.into_inner() {
@@ -120,7 +119,7 @@ impl ParseContext {
                 _ => debug_cases!(pair),
             }
         }
-        Ok(ASTNode::block(children))
+        Ok(ASTNode::if_statement(if_true, cond, children))
     }
 }
 
@@ -129,7 +128,7 @@ impl ParseContext {
         let pair = pairs.into_inner().next().unwrap();
         let symbol = match pair.as_rule() {
             Rule::SYMBOL => self.symbol(pair)?,
-            Rule::Number=> ASTNode::number(NumberLiteral::try_from(pair)?),
+            Rule::Number => ASTNode::number(NumberLiteral::try_from(pair)?),
             _ => debug_cases!(pair),
         };
         Ok(symbol)
