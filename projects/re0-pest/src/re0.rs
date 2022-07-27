@@ -140,7 +140,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn op_infix(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::op_infix, |state| self::GT(state).or_else(|state| self::LT(state)).or_else(|state| self::GEQ(state)).or_else(|state| self::LEQ(state)).or_else(|state| self::EQ(state)).or_else(|state| self::NE(state)).or_else(|state| self::ADD_ASSIGN(state)).or_else(|state| self::SUB_ASSIGN(state)))
+                    self::GT(state).or_else(|state| self::LT(state)).or_else(|state| self::GEQ(state)).or_else(|state| self::LEQ(state)).or_else(|state| self::EQ(state)).or_else(|state| self::NE(state)).or_else(|state| self::ADD_ASSIGN(state)).or_else(|state| self::SUB_ASSIGN(state))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]

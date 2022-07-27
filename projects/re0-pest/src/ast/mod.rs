@@ -17,10 +17,12 @@ pub enum ASTKind {
     Root(Vec<ASTNode>),
     Declare(DeclareStatement),
     IfStatement(Box<IfStatement>),
+    Expression(Box<Expression>),
     Block(Vec<ASTNode>),
-    Pair(Atom, ASTNode),
+    Pair(Atom, Box<ASTNode>),
     Number(NumberLiteral),
     Symbol(String),
+    Boolean(bool),
     Never,
 }
 
@@ -29,6 +31,13 @@ pub struct IfStatement {
     if_true: bool,
     condition: ASTNode,
     children: Vec<ASTNode>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Expression {
+    pub left: ASTNode,
+    pub right: ASTNode,
+    pub operator: String,
 }
 
 impl Default for ASTKind {
@@ -51,12 +60,20 @@ impl ASTNode {
         Self { kind: ASTKind::IfStatement(box IfStatement { if_true, condition, children }) }
     }
 
+    pub fn binary_expression(left: ASTNode, right: ASTNode, operator: &str) -> Self {
+        Self { kind: ASTKind::Expression(box Expression { left, right, operator: operator.to_string() }) }
+    }
+
     pub fn block(children: Vec<ASTNode>) -> Self {
         Self { kind: ASTKind::Block(children) }
     }
 
     pub fn symbol(symbol: &str) -> Self {
         Self { kind: ASTKind::Symbol(symbol.to_string()) }
+    }
+
+    pub fn pair(key: Atom, value: ASTNode) -> Self {
+        Self { kind: ASTKind::Pair(key, box value) }
     }
 
     pub fn number<N>(input: N) -> Self

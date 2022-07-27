@@ -41,7 +41,7 @@ term = {data ~ call_suffix?}
 call_suffix = {
     "(" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ ")"
 }
-op_infix = {
+op_infix = _{
     GT | LT | GEQ | LEQ |
     EQ | NE |
     ADD_ASSIGN | SUB_ASSIGN

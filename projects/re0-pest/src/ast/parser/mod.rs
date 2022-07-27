@@ -7,6 +7,7 @@ use crate::{
     world::{World, WorldConfig},
     Re0Error, Result,
 };
+use crate::ast::Atom;
 
 mod operators;
 
@@ -23,9 +24,11 @@ impl Default for ParseContext {
 
 #[test]
 fn test() {
+    let mut world = World::default();
     let mut state = ParseContext::default();
     let ast = state.parse(include_str!("世界.re0")).unwrap();
     println!("{:#?}", ast);
+    world.
 }
 
 macro_rules! debug_cases {
@@ -75,16 +78,17 @@ impl ParseContext {
         let mut out = ASTNode::default();
         for pair in pairs.into_inner() {
             match pair.as_rule() {
-                Rule::declare_pair => self.declare_pair(pair)?,
+                Rule::declare_pair => out = self.declare_pair(pair)?,
                 _ => debug_cases!(pair),
             }
         }
         Ok(out)
     }
     fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        let mut key = ASTNode::default();
+        let mut pairs = pairs.into_inner();
+        let mut key = self.key(pairs.next().unwrap())?;
         let mut value = ASTNode::default();
-        for pair in pairs.into_inner() {
+        for pair in pairs {
             match pair.as_rule() {
                 Rule::Key => key = self.key(pair)?,
                 Rule::declare_block => value = self.declare_block(pair)?,
@@ -92,7 +96,7 @@ impl ParseContext {
                 _ => debug_cases!(pair),
             }
         }
-        Ok(())
+        Ok(ASTNode::pair(key, value))
     }
     fn parse_statements(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let pair = pairs.into_inner().next().unwrap();
@@ -133,11 +137,11 @@ impl ParseContext {
         };
         Ok(symbol)
     }
-    fn key(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn key(&mut self, pairs: Pair<Rule>) -> Result<Atom> {
         let head = pairs.into_inner().next().unwrap();
         let symbol = match head.as_rule() {
-            Rule::SYMBOL => ASTNode::symbol(head.as_str()),
-            Rule::Integer => ASTNode::symbol(head.as_str()),
+            Rule::SYMBOL => Atom::Symbol(head.as_str().to_string()),
+            Rule::Integer => Atom::try_i64(head.as_str())?,
             _ => debug_cases!(head),
         };
         Ok(symbol)
