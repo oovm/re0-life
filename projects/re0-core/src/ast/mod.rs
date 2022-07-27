@@ -1,6 +1,6 @@
-use crate::{ Re0Error, Result};
+use crate::{Re0Error, Result};
 
-pub use self::dict::{get_flatten_vec, Dict};
+pub use self::dict::{Dict, get_flatten_vec};
 
 mod dict;
 mod parser;
@@ -16,24 +16,30 @@ pub enum ASTKind {
     Root,
     Declare(DeclareStatement),
     Number(NumberLiteral),
+    Symbol(String),
 }
 
 impl ASTNode {
     pub fn root(children: Vec<ASTNode>) -> Self {
-        Self {
-            kind: ASTKind::Root,
-            children,
-        }
+        Self { kind: ASTKind::Root, children }
     }
 
     pub fn declare_statement(keyword: &str, symbol: &str, modifiers: Vec<String>, children: Vec<ASTNode>) -> Self {
-        let s = DeclareStatement {
-            keyword: keyword.to_string(),
-            symbol: symbol.to_string(),
-            modifiers,
-        };
-
+        let s = DeclareStatement { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers };
         Self { kind: ASTKind::Declare(s), children }
+    }
+
+    pub fn symbol(symbol: &str) -> Self {
+        Self { kind: ASTKind::Symbol(symbol.to_string()), children: vec![] }
+    }
+}
+
+impl From<ASTNode> for String {
+    fn from(node: ASTNode) -> Self {
+        match node.kind {
+            ASTKind::Symbol(s) => {s}
+            _ => unreachable!()
+        }
     }
 }
 

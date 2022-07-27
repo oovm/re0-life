@@ -78,9 +78,10 @@ impl ParseContext {
         Ok(())
     }
     fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<()> {
+        let mut key = String::new();
         for pair in pairs.into_inner() {
             match pair.as_rule() {
-                Rule::Key => self.key(pair)?,
+                Rule::Key => key = self.key(pair)?,
                 _ => debug_cases!(pair),
             }
         }
@@ -90,11 +91,19 @@ impl ParseContext {
 
 impl ParseContext {
     fn key(&mut self, pairs: Pair<Rule>) -> Result<String> {
-        for pair in pairs.into_inner() {
-            match pair.as_rule() {
-                _ => debug_cases!(pair),
-            }
+        let head = pairs.into_inner().next().unwrap();
+        match head.as_rule() {
+            Rule::SYMBOL=>self.symbol(head)?,
+            _ => debug_cases!(head),
         }
-        Ok(())
+        Ok("()".to_string())
+    }
+    fn symbol(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let head = pairs.into_inner().next().unwrap();
+        match head.as_rule() {
+            Rule::SYMBOL=>self.symbol(head)?,
+            _ => debug_cases!(head),
+        }
+        Ok("()".to_string())
     }
 }
