@@ -2,7 +2,7 @@ program = _{SOI ~ declare_statement* ~ EOI}
 declare_statement = {SYMBOL ~ SYMBOL ~ modifiers? ~ declare_block}
 /*====================================================================================================================*/
 declare_block = {
-    "{" ~ declare_item ~ "}"
+    "{" ~ declare_item* ~ "}"
 }
 declare_item  = _{
     SEPARATOR
@@ -60,7 +60,7 @@ modifiers =  {SYMBOL+}
 Dot       = @{"."}
 /*====================================================================================================================*/
 ///Gray
-COMMENT          =  {LineComment}
+COMMENT          = _{LineComment}
 WHITESPACE       = _{NEWLINE|SPACE_SEPARATOR|"\t"}
 LineComment      = ${("//"|"、") ~ (!NEWLINE ~ ANY)*}
 MultiLineComment = ${"/*" ~ (MultiLineComment | !"*/" ~ ANY)* ~ "*/"}

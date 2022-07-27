@@ -1,6 +1,7 @@
 use crate::{Re0Error, Result};
 pub use self::dict::{Dict, get_flatten_vec};
 mod dict;
+mod parser;
 
 
 pub enum Value {

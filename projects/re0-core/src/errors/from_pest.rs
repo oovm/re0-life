@@ -1,4 +1,7 @@
-use re0_pest::{pest::error::LineColLocation, Error, Rule};
+use re0_pest::{
+    pest::error::{ErrorVariant, LineColLocation},
+    Error, Rule,
+};
 
 use crate::{
     errors::{Re0ErrorKind, Re0ErrorLevel},
@@ -7,15 +10,20 @@ use crate::{
 
 impl From<Error<Rule>> for Re0Error {
     fn from(e: Error<Rule>) -> Self {
-        let kind = Re0ErrorKind::SyntaxError(e.to_string());
-        match e.line_col {
-            LineColLocation::Pos(_) => Self { kind: Box::new(kind), level: Re0ErrorLevel::Error, file: None, position: (0, 0) },
-            LineColLocation::Span(start, _) => Self {
-                kind: Box::new(kind),
-                level: Re0ErrorLevel::Hide,
-                file: None,
-                position: (start.0 as u32, start.1 as u32),
-            },
-        }
+        let kind = match e.variant {
+            ErrorVariant::ParsingError { positives, negatives } => {
+                format!(
+                    "期望: {}\n实际: {}",
+                    positives.iter().map(|s| format!("{s:?}")).intersperse(", ".to_string()).collect::<String>(),
+                    negatives.iter().map(|s| format!("{s:?}")).intersperse(", ".to_string()).collect::<String>(),
+                )
+            }
+            ErrorVariant::CustomError { message } => message,
+        };
+        let position = match e.line_col {
+            LineColLocation::Pos(_) => None,
+            LineColLocation::Span(start, _) => Some((start.0 as u32, start.1 as u32)),
+        };
+        Self { kind: box Re0ErrorKind::SyntaxError(kind), level: Re0ErrorLevel::Error, file: None, position }
     }
 }

@@ -2,8 +2,10 @@ use std::{mem::take, ops::AddAssign, str::FromStr};
 
 use re0_pest::{Pair, Parser, Re0Parser, Rule};
 
-use crate::{world::World, Result, Re0Error};
-use crate::world::WorldConfig;
+use crate::{
+    world::{World, WorldConfig},
+    Re0Error, Result,
+};
 
 struct ParseContext {
     errors: Vec<Re0Error>,
@@ -16,12 +18,10 @@ impl Default for ParseContext {
     }
 }
 
-
-
 #[test]
 fn test() {
-
-   include_str!("世界.re0")
+    let mut world = World::default();
+    world.parse(include_str!("世界.re0")).unwrap()
 }
 
 macro_rules! debug_cases {
@@ -34,7 +34,7 @@ macro_rules! debug_cases {
 }
 
 impl World {
-    pub fn parse(&mut self, input:&str) -> Result<()> {
+    pub fn parse(&mut self, input: &str) -> Result<()> {
         let mut state = ParseContext::default();
         self.parse_inner(input, &mut state)
     }
@@ -42,7 +42,7 @@ impl World {
         let parsed = Re0Parser::parse(Rule::program, input)?;
         for pair in parsed {
             match pair.as_rule() {
-
+                Rule::declare_statement => self.declare_statement(pair, ctx)?,
                 _ => debug_cases!(pair),
             }
         }
@@ -50,16 +50,14 @@ impl World {
     }
 }
 
-impl ParseContext {
-    // pub fn parse_schema_statement(&mut self, pairs: Pair<Rule>, node: &mut JssSchema) -> Result<()> {
-    //     for pair in pairs.into_inner() {
-    //         match pair.as_rule() {
-    //             Rule::SYMBOL => node.set_name(pair.as_str()),
-    //             Rule::block => self.parse_block(pair, node)?,
-    //             _ => debug_cases!(pair),
-    //         }
-    //     }
-    //     Ok(())
-    // }
+impl World {
+    fn declare_statement(&mut self, pairs: Pair<Rule>, ctx: &mut ParseContext) -> Result<()> {
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::SYMBOL => continue,
+                _ => debug_cases!(pair),
+            }
+        }
+        Ok(())
+    }
 }
-

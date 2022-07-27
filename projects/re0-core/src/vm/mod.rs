@@ -20,6 +20,7 @@ pub type Re0Function = fn(&mut GameVM, &[Value]) -> Result<Value>;
 
 impl GameVM {
     pub fn register_function(&mut self, name: &str, func: Re0Function) {
-        self.world.regiest_function(name, func);
+        todo!()
+        // self.world.regiest_function(name, func);
     }
 }

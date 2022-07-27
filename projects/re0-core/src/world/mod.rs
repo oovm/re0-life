@@ -1,9 +1,8 @@
-pub use crate::value::{get_flatten_vec, Dict};
+pub use crate::value::{Dict, get_flatten_vec};
 
 pub use self::mode::*;
 
 mod mode;
-mod parser;
 
 #[derive(Debug, Clone)]
 pub struct World {

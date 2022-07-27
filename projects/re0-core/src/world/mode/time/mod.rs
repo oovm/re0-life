@@ -10,6 +10,7 @@ use crate::{value::NumberLiteral, world::Dict, Re0Error, Result};
 
 mod parsing;
 
+#[derive(Clone, Debug)]
 #[doc = include_str!("time_manager.md")]
 pub struct TimeManager {
     pub(crate) mode: TimeMode,
@@ -22,6 +23,7 @@ pub struct TimeManager {
     pub(crate) speed: f32,
 }
 
+#[derive(Clone, Debug)]
 pub enum TimeMode {
     /// 地球年
     /// 每回合年数 +1

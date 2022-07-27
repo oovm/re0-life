@@ -4,6 +4,7 @@ use std::{
 };
 use std::collections::btree_set::Range;
 use std::path::PathBuf;
+
 mod from_pest;
 mod display;
 
@@ -18,7 +19,7 @@ pub struct Re0Error {
     kind: Box<Re0ErrorKind>,
     level: Re0ErrorLevel,
     file: Option<String>,
-    position: (u32, u32)
+    position: Option<(u32, u32)>
 }
 
 
@@ -61,13 +62,16 @@ impl Re0Error {
     }
     #[inline]
     pub fn with_line_column(self, line: u32, column: u32) -> Self {
-        Self { position: (line, column), ..self }
+        Self { position: Some((line, column)), ..self }
     }
     #[inline]
     pub fn simple_error<S>(msg: S) -> Self
     where
         S: Into<String>,
+
+
     {
-        Self { kind: Re0ErrorKind::SimpleError(msg.into()), ..Self::default() }
+        let kind = box Re0ErrorKind::SimpleError(msg.into());
+        Self { kind, ..Self::default() }
     }
 }

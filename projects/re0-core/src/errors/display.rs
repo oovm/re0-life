@@ -12,6 +12,6 @@ impl Display for Re0Error {
 
 impl Default for Re0Error {
     fn default() -> Self {
-        Self { kind: Re0ErrorKind::UnknownError, level: Re0ErrorLevel::Info, file: None }
+        Self { kind: Box::new(Re0ErrorKind::UnknownError), level: Re0ErrorLevel::Info, file: None, position: None }
     }
 }
