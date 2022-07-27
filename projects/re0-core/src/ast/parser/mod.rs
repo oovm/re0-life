@@ -3,10 +3,10 @@ use std::{mem::take, ops::AddAssign, str::FromStr};
 use re0_pest::{Pair, Parser, Re0Parser, Rule};
 
 use crate::{
+    ast::{ASTKind, ASTNode},
     world::{World, WorldConfig},
     Re0Error, Result,
 };
-use crate::ast::{ASTKind, ASTNode};
 
 struct ParseContext {
     errors: Vec<Re0Error>,
@@ -42,13 +42,16 @@ impl ParseContext {
         for pair in parsed {
             match pair.as_rule() {
                 Rule::EOI => continue,
-                Rule::declare_statement => {
-                    children.push(self.declare_statement(pair)?)
-                },
+                Rule::declare_statement => children.push(self.declare_statement(pair)?),
+                Rule::LineComment => self.push_document(pair),
                 _ => debug_cases!(pair),
             }
         }
         Ok(ASTNode::root(children))
+    }
+    fn push_document(&mut self, pairs: Pair<Rule>) {
+        self.documents.push('\n');
+        self.documents.push_str(pairs.as_str().trim_start_matches("///").trim_start_matches("、").trim());
     }
 }
 
@@ -59,14 +62,34 @@ impl ParseContext {
         let symbol = pairs.next().unwrap().as_str();
         for pair in pairs {
             match pair.as_rule() {
-                Rule::SYMBOL => continue,
-                Rule::declare_block => continue,
+                Rule::declare_block => self.declare_block(pair)?,
                 _ => debug_cases!(pair),
             }
         }
         Ok(ASTNode::declare_statement(kind, symbol, vec![], vec![]))
     }
     fn declare_block(&mut self, pairs: Pair<Rule>) -> Result<()> {
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::declare_pair => self.declare_pair(pair)?,
+                _ => debug_cases!(pair),
+            }
+        }
+        Ok(())
+    }
+    fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<()> {
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::Key => self.key(pair)?,
+                _ => debug_cases!(pair),
+            }
+        }
+        Ok(())
+    }
+}
+
+impl ParseContext {
+    fn key(&mut self, pairs: Pair<Rule>) -> Result<String> {
         for pair in pairs.into_inner() {
             match pair.as_rule() {
                 _ => debug_cases!(pair),

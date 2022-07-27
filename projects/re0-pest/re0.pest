@@ -17,7 +17,7 @@ declare_pair  =  {
     Key ~ COLON? ~ list_block |
     Key ~ COLON ~ statements
 }
-Key           = _{StringNormal|SYMBOL|Integer}
+Key           = {StringNormal|SYMBOL|Integer}
 COLON         = @{":"|"："}
 /*====================================================================================================================*/
 if_statement = {
@@ -93,8 +93,9 @@ modifiers =  {SYMBOL+}
 Dot       = @{"."}
 /*====================================================================================================================*/
 ///Gray
-COMMENT          = _{LineComment}
+COMMENT          = _{LineComment|OmitComment}
 WHITESPACE       = _{NEWLINE|SPACE_SEPARATOR|"\t"}
-LineComment      = ${("//"|"、") ~ (!NEWLINE ~ ANY)*}
+LineComment      = ${("///"|"、") ~ (!NEWLINE ~ ANY)*}
+OmitComment      = _{("//") ~ (!NEWLINE ~ ANY)*}
 MultiLineComment = ${"/*" ~ (MultiLineComment | !"*/" ~ ANY)* ~ "*/"}
 SEPARATOR        = _{","|";"|"，"|"；"}

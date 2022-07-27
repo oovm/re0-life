@@ -38,6 +38,7 @@ pub enum Rule {
     COMMENT,
     WHITESPACE,
     LineComment,
+    OmitComment,
     MultiLineComment,
     SEPARATOR,
 }
@@ -88,7 +89,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn Key(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    self::StringNormal(state).or_else(|state| self::SYMBOL(state)).or_else(|state| self::Integer(state))
+                    state.rule(Rule::Key, |state| self::StringNormal(state).or_else(|state| self::SYMBOL(state)).or_else(|state| self::Integer(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -218,7 +219,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn COMMENT(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::Atomic, |state| self::LineComment(state))
+                    state.atomic(::pest::Atomicity::Atomic, |state| self::LineComment(state).or_else(|state| self::OmitComment(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -228,7 +229,12 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn LineComment(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::LineComment, |state| state.sequence(|state| state.match_string("//").or_else(|state| state.match_string("、")).and_then(|state| state.repeat(|state| state.sequence(|state| state.lookahead(false, |state| self::NEWLINE(state)).and_then(|state| self::ANY(state))))))))
+                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::LineComment, |state| state.sequence(|state| state.match_string("///").or_else(|state| state.match_string("、")).and_then(|state| state.repeat(|state| state.sequence(|state| state.lookahead(false, |state| self::NEWLINE(state)).and_then(|state| self::ANY(state))))))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn OmitComment(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.sequence(|state| state.match_string("//").and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| state.lookahead(false, |state| self::NEWLINE(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::ANY(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| state.lookahead(false, |state| self::NEWLINE(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::ANY(state)))))))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -324,6 +330,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
             Rule::COMMENT => rules::COMMENT(state),
             Rule::WHITESPACE => rules::WHITESPACE(state),
             Rule::LineComment => rules::LineComment(state),
+            Rule::OmitComment => rules::OmitComment(state),
             Rule::MultiLineComment => rules::MultiLineComment(state),
             Rule::SEPARATOR => rules::SEPARATOR(state),
             Rule::EOI => rules::EOI(state),
