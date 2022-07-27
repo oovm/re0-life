@@ -1,6 +1,6 @@
 pub use self::{
     dict::{get_flatten_vec, Dict},
-    key::KeyLiteral,
+    key::Atom,
     numeric::NumberLiteral
 };
 
@@ -19,7 +19,7 @@ pub enum ASTKind {
     Root(Vec<ASTNode>),
     Declare(DeclareStatement),
     Block(Vec<ASTNode>),
-    Key(KeyLiteral),
+    Key(Atom),
     Number(NumberLiteral),
     Symbol(String),
     Never,
@@ -56,7 +56,7 @@ impl ASTNode {
 
     pub fn key<K>(input: K) -> Self
     where
-        K: Into<KeyLiteral>,
+        K: Into<Atom>,
     {
         Self { kind: ASTKind::Key(input.into()) }
     }

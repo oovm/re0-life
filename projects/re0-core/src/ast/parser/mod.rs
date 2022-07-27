@@ -89,7 +89,7 @@ impl ParseContext {
             match pair.as_rule() {
                 Rule::Key => key = self.key(pair)?,
                 Rule::declare_block => value = self.declare_block(pair)?,
-                Rule::statements => value = self.parse_statements(pair)?,
+                Rule::statement => value = self.parse_statements(pair)?,
                 _ => debug_cases!(pair),
             }
         }
@@ -129,7 +129,7 @@ impl ParseContext {
         let pair = pairs.into_inner().next().unwrap();
         let symbol = match pair.as_rule() {
             Rule::SYMBOL => self.symbol(pair)?,
-            Rule::Number=> ASTNode::number(pair),
+            Rule::Number=> ASTNode::number(NumberLiteral::try_from(pair)?),
             _ => debug_cases!(pair),
         };
         Ok(symbol)

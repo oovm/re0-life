@@ -4,6 +4,7 @@ use std::{
 };
 use std::path::PathBuf;
 
+mod from_std;
 mod from_pest;
 mod display;
 
@@ -67,8 +68,6 @@ impl Re0Error {
     pub fn simple_error<S>(msg: S) -> Self
     where
         S: Into<String>,
-
-
     {
         let kind = box Re0ErrorKind::SimpleError(msg.into());
         Self { kind, ..Self::default() }
