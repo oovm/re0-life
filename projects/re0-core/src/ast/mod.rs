@@ -1,22 +1,37 @@
-use crate::{Re0Error, Result};
-
-pub use self::dict::{Dict, get_flatten_vec};
+pub use self::{
+    dict::{get_flatten_vec, Dict},
+    key::KeyLiteral,
+};
 
 mod dict;
+mod key;
 mod parser;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ASTNode {
     kind: ASTKind,
-    children: Vec<ASTNode>,
 }
 
 #[derive(Debug, Clone)]
 pub enum ASTKind {
-    Root,
+    Root(Vec<ASTNode>),
     Declare(DeclareStatement),
+    Block(Vec<ASTNode>),
+    Key(KeyLiteral),
     Number(NumberLiteral),
     Symbol(String),
+    Never,
+}
+
+pub struct IfStatement {
+    if_true: bool,
+    children: Vec<ASTNode>,
+}
+
+impl Default for ASTKind {
+    fn default() -> Self {
+        Self::Never
+    }
 }
 
 impl ASTNode {
@@ -29,16 +44,27 @@ impl ASTNode {
         Self { kind: ASTKind::Declare(s), children }
     }
 
+    pub fn block(children: Vec<ASTNode>) -> Self {
+        Self { kind: ASTKind::Block, children }
+    }
+
     pub fn symbol(symbol: &str) -> Self {
         Self { kind: ASTKind::Symbol(symbol.to_string()), children: vec![] }
+    }
+
+    pub fn key<K>(input: K) -> Self
+    where
+        K: Into<KeyLiteral>,
+    {
+        Self { kind: ASTKind::Key(input.into()), children: vec![] }
     }
 }
 
 impl From<ASTNode> for String {
     fn from(node: ASTNode) -> Self {
         match node.kind {
-            ASTKind::Symbol(s) => {s}
-            _ => unreachable!()
+            ASTKind::Symbol(s) => s,
+            _ => unreachable!(),
         }
     }
 }

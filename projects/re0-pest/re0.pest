@@ -17,8 +17,8 @@ declare_pair  =  {
     Key ~ COLON? ~ list_block |
     Key ~ COLON ~ statements
 }
-Key           = {StringNormal|SYMBOL|Integer}
-COLON         = @{":"|"："}
+Key           =  {StringNormal|SYMBOL|Integer}
+COLON         = _{":"|"："}
 /*====================================================================================================================*/
 if_statement = {
     kw_if ~ expression ~ block

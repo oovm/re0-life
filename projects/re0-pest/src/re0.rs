@@ -94,7 +94,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn COLON(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::COLON, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(":").or_else(|state| state.match_string("："))))
+                    state.match_string(":").or_else(|state| state.match_string("："))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -204,7 +204,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn SYMBOL(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::SYMBOL, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.sequence(|state| self::XID_START(state).or_else(|state| state.match_string("_")).and_then(|state| state.repeat(|state| self::XID_CONTINUE(state).or_else(|state| state.match_string("_")))))))
+                    state.rule(Rule::SYMBOL, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.sequence(|state| self::XID_START(state).or_else(|state| state.match_string("_")).and_then(|state| state.repeat(|state| self::XID_CONTINUE(state).or_else(|state| state.match_string("_"))))).or_else(|state| state.sequence(|state| state.match_string("`").and_then(|state| state.repeat(|state| state.sequence(|state| state.match_string("\\").and_then(|state| self::ANY(state))).or_else(|state| state.sequence(|state| state.lookahead(false, |state| state.match_string("\\").or_else(|state| state.match_string("`"))).and_then(|state| self::ANY(state)))))).and_then(|state| state.match_string("`"))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
