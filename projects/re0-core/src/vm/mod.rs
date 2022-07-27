@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::{value::Value, world::World, Result};
+use crate::{ast::ASTKind, world::World, Result};
 
 pub struct GameVM {
     pub templates: Template,
@@ -16,7 +16,7 @@ pub struct Template {
     pub functions: BTreeMap<String, Re0Function>,
 }
 
-pub type Re0Function = fn(&mut GameVM, &[Value]) -> Result<Value>;
+pub type Re0Function = fn(&mut GameVM, &[ASTKind]) -> Result<ASTKind>;
 
 impl GameVM {
     pub fn register_function(&mut self, name: &str, func: Re0Function) {

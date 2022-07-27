@@ -4,12 +4,22 @@ pub struct Re0Parser;
 pub enum Rule {
     EOI,
     program,
+    statements,
     declare_statement,
     declare_block,
     declare_item,
     declare_pair,
     Key,
     COLON,
+    if_statement,
+    else_statement,
+    block,
+    kw_if,
+    kw_else,
+    expression,
+    term,
+    call_suffix,
+    op_infix,
     list_block,
     data,
     Special,
@@ -52,6 +62,11 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
+                pub fn statements(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::statements, |state| self::if_statement(state).or_else(|state| self::expression(state)))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
                 pub fn declare_statement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
                     state.rule(Rule::declare_statement, |state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::modifiers(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::declare_block(state))))
                 }
@@ -68,17 +83,62 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn declare_pair(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::declare_pair, |state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::COLON(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::data(state))).or_else(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::COLON(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::declare_block(state).or_else(|state| self::list_block(state))))))
+                    state.rule(Rule::declare_pair, |state| state.sequence(|state| self::Key(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::COLON(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::declare_block(state))).or_else(|state| state.sequence(|state| self::Key(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| self::COLON(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::list_block(state))).or_else(|state| state.sequence(|state| self::COLON(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::statements(state))))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn Key(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    self::StringNormal(state).or_else(|state| self::SYMBOL(state)).or_else(|state| self::SignedNumber(state))
+                    self::StringNormal(state).or_else(|state| self::SYMBOL(state)).or_else(|state| self::Integer(state))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn COLON(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
                     state.rule(Rule::COLON, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(":").or_else(|state| state.match_string("："))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn if_statement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::if_statement, |state| state.sequence(|state| self::kw_if(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state).or_else(|state| state.sequence(|state| self::block(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::else_statement(state)))))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn else_statement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::else_statement, |state| state.sequence(|state| state.match_string("else").and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn block(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::block, |state| state.sequence(|state| state.match_string("{").and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| self::statements(state).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| self::statements(state)))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("}"))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn kw_if(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::kw_if, |state| state.match_string("若").or_else(|state| state.match_string("如果")).or_else(|state| state.match_string("if")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn kw_else(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::kw_else, |state| state.match_string("否则").or_else(|state| state.match_string("else")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn expression(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::expression, |state| state.sequence(|state| self::term(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::op_infix(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::term(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::op_infix(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::term(state))))))))))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn term(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::term, |state| state.sequence(|state| self::data(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::call_suffix(state)))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn call_suffix(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::call_suffix, |state| state.sequence(|state| state.match_string("(").and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.sequence(|state| self::expression(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::SEPARATOR(state)))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(")"))))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn op_infix(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::op_infix, |state| state.match_string(">").or_else(|state| state.match_string("大于")).or_else(|state| state.match_string(">=")).or_else(|state| state.match_string("大于等于")).or_else(|state| state.match_string("不小于")).or_else(|state| state.match_string("<")).or_else(|state| state.match_string("小于")).or_else(|state| state.match_string("<=")).or_else(|state| state.match_string("小于等于")).or_else(|state| state.match_string("不大于")).or_else(|state| state.match_string("==")).or_else(|state| state.match_string("等于")).or_else(|state| state.match_string("!=")).or_else(|state| state.match_string("不等于")).or_else(|state| state.match_string("+=")).or_else(|state| state.match_string("-=")))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -230,12 +290,22 @@ impl ::pest::Parser<Rule> for Re0Parser {
         }
         ::pest::state(input, |state| match rule {
             Rule::program => rules::program(state),
+            Rule::statements => rules::statements(state),
             Rule::declare_statement => rules::declare_statement(state),
             Rule::declare_block => rules::declare_block(state),
             Rule::declare_item => rules::declare_item(state),
             Rule::declare_pair => rules::declare_pair(state),
             Rule::Key => rules::Key(state),
             Rule::COLON => rules::COLON(state),
+            Rule::if_statement => rules::if_statement(state),
+            Rule::else_statement => rules::else_statement(state),
+            Rule::block => rules::block(state),
+            Rule::kw_if => rules::kw_if(state),
+            Rule::kw_else => rules::kw_else(state),
+            Rule::expression => rules::expression(state),
+            Rule::term => rules::term(state),
+            Rule::call_suffix => rules::call_suffix(state),
+            Rule::op_infix => rules::op_infix(state),
             Rule::list_block => rules::list_block(state),
             Rule::data => rules::data(state),
             Rule::Special => rules::Special(state),

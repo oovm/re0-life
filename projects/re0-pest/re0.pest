@@ -1,20 +1,53 @@
 program = _{SOI ~ declare_statement* ~ EOI}
+statements = {
+    if_statement |
+    expression
+}
 declare_statement = {SYMBOL ~ SYMBOL ~ modifiers? ~ declare_block}
 /*====================================================================================================================*/
 declare_block = {
     "{" ~ declare_item* ~ "}"
 }
 declare_item  = _{
-    SEPARATOR
-  | declare_pair
+    SEPARATOR |
+    declare_pair
 }
 declare_pair  =  {
-    SYMBOL ~ COLON ~ data
-  | SYMBOL ~ COLON? ~ declare_block
-  | SYMBOL ~ COLON? ~ list_block
+    Key ~ COLON? ~ declare_block |
+    Key ~ COLON? ~ list_block |
+    Key ~ COLON ~ statements
 }
-Key           = _{StringNormal|SYMBOL|SignedNumber}
+Key           = _{StringNormal|SYMBOL|Integer}
 COLON         = @{":"|"："}
+/*====================================================================================================================*/
+if_statement = {
+    kw_if ~ expression ~ block
+  | kw_if ~ expression ~ block ~ else_statement
+}
+else_statement = {
+    "else" ~ block
+}
+block = {"{" ~ statements* ~ "}"}
+kw_if = {
+    "若"| "如果" | "if"
+}
+kw_else = {
+    "否则" | "else"
+}
+/*====================================================================================================================*/
+expression = {
+    term ~ (op_infix ~ term)*
+}
+term = {data ~ call_suffix?}
+call_suffix = {
+    "(" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ ")"
+}
+op_infix = {
+    ">" | "大于" | ">=" | "大于等于" | "不小于" |
+    "<" | "小于" | "<=" | "小于等于" | "不大于" |
+    "==" | "等于" | "!=" | "不等于" |
+    "+=" | "-="
+}
 /*====================================================================================================================*/
 list_block =  {
     "[" ~ (data|SEPARATOR)* ~ "]"

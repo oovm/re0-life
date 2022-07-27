@@ -2,7 +2,6 @@ use std::{
     error::Error,
     fmt::{Display, Formatter},
 };
-use std::collections::btree_set::Range;
 use std::path::PathBuf;
 
 mod from_pest;
