@@ -4,9 +4,12 @@ use re0_pest::{Pair, Parser, Re0Parser, Rule};
 
 use crate::{
     ast::{ASTKind, ASTNode},
-    Re0Error,
-    Result, world::{World, WorldConfig},
+    world::{World, WorldConfig},
+    Re0Error, Result,
 };
+use crate::ast::NumberLiteral;
+
+mod operators;
 
 struct ParseContext {
     errors: Vec<Re0Error>,
@@ -96,18 +99,24 @@ impl ParseContext {
         let pair = pairs.into_inner().next().unwrap();
         let out = match pair.as_rule() {
             Rule::if_statement => self.if_statement(pair)?,
+            Rule::expression => self.expression(pair),
             _ => debug_cases!(pair),
         };
         Ok(out)
     }
     fn if_statement(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let mut children = vec![];
-        let mut  if_true = true;
+        let mut if_true = true;
+        let mut cond = ASTNode::default();
         for pair in pairs.into_inner() {
             match pair.as_rule() {
-                Rule::kw_if=> {
-                    if let "若非" = pair.as_str() { if_true = false }
-                },
+                Rule::kw_if => {
+                    if let "若非" = pair.as_str() {
+                        if_true = false
+                    }
+                }
+                Rule::expression => cond = self.expression(pair),
+                Rule::block => continue,
                 _ => debug_cases!(pair),
             }
         }
@@ -116,6 +125,15 @@ impl ParseContext {
 }
 
 impl ParseContext {
+    fn data(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let pair = pairs.into_inner().next().unwrap();
+        let symbol = match pair.as_rule() {
+            Rule::SYMBOL => self.symbol(pair)?,
+            Rule::Number=> ASTNode::number(pair),
+            _ => debug_cases!(pair),
+        };
+        Ok(symbol)
+    }
     fn key(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let head = pairs.into_inner().next().unwrap();
         let symbol = match head.as_rule() {
@@ -126,6 +144,6 @@ impl ParseContext {
         Ok(symbol)
     }
     fn symbol(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        Ok(ASTNode::key(pairs.as_str().trim_matches('`')))
+        Ok(ASTNode::symbol(pairs.as_str().trim_matches('`')))
     }
 }

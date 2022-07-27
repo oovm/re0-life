@@ -1,5 +1,5 @@
 program = _{SOI ~ declare_statement* ~ EOI}
-statements = {
+statement = {
     if_statement |
     expression
 }
@@ -15,7 +15,7 @@ declare_item  = _{
 declare_pair  =  {
     Key ~ COLON? ~ declare_block |
     Key ~ COLON? ~ list_block |
-    Key ~ COLON ~ statements
+    Key ~ COLON ~ statement
 }
 Key           =  {StringNormal|SYMBOL|Integer}
 COLON         = _{":"|"："}
@@ -27,7 +27,6 @@ if_statement = {
 else_statement = {
     "else" ~ block
 }
-block = {"{" ~ statements* ~ "}"}
 kw_if = {
     "若"| "如果" | "if"
 }
@@ -43,15 +42,25 @@ call_suffix = {
     "(" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ ")"
 }
 op_infix = {
-    ">" | "大于" | ">=" | "大于等于" | "不小于" |
-    "<" | "小于" | "<=" | "小于等于" | "不大于" |
-    "==" | "等于" | "!=" | "不等于" |
-    "+=" | "-="
+    GT | LT | GEQ | LEQ |
+    EQ | NE |
+    ADD_ASSIGN | SUB_ASSIGN
 }
+GT = @{">" | "大于"}
+LT  = @{"<" | "小于"}
+EQ = @{"==" | "等于"}
+NE = @{"!=" | "不等于"}
+GEQ = @{">=" | "大于等于" | "不小于"}
+LEQ = @{"<=" | "小于等于" | "不大于"}
+ADD_ASSIGN = @{"+="}
+SUB_ASSIGN = @{"-="}
 /*====================================================================================================================*/
-list_block =  {
-    "[" ~ (data|SEPARATOR)* ~ "]"
-  | "【" ~ (data|SEPARATOR)* ~ "】"
+list_block = {
+    "[" ~ (statement|SEPARATOR)* ~ "]"
+  | "【" ~ (statement|SEPARATOR)* ~ "】"
+}
+block      = {
+    "{" ~ (statement|SEPARATOR)* ~ "}"
 }
 /*====================================================================================================================*/
 data = !{
@@ -63,12 +72,9 @@ data = !{
 Special = @{"true"|"false"|"null"}
 /*====================================================================================================================*/
 //!#D19A66: SignedNumber
-Number       = ${(SignedNumber) ~ SYMBOL?}
-SignedNumber = ${Sign? ~ (Decimal|DecimalBad|Integer)}
+Number       = ${(Integer|Decimal) ~ SYMBOL?}
 Decimal      = ${Integer ~ Dot ~ ("_"? ~ ASCII_DIGIT)*}
-DecimalBad   = ${Integer ~ Dot|Dot ~ ("_"? ~ ASCII_DIGIT)*}
-//Integer    = @{"0"|ASCII_NONZERO_DIGIT ~ ("_"? ~ ASCII_DIGIT)*}
-Integer      = @{ASCII_DIGIT ~ ("_"? ~ ASCII_DIGIT)*}
+Integer      = @{"0"|ASCII_NONZERO_DIGIT ~ ("_"? ~ ASCII_DIGIT)*}
 Sign         = @{"+"|"-"}
 /*====================================================================================================================*/
 //!#3C963C: String|InlineString|InlineString2|RestLineText
