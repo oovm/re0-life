@@ -27,9 +27,9 @@ impl GameVM {
         match v {
             Value::Symbol(s) => match self.world.property.get_mut(s) {
                 Some(s) => Ok(s),
-                None => Err(Re0Error::simple_error(" {} 属性不存在").with_level(1)),
+                None => Err(Re0Error::simple_error(" {} 属性不存在")),
             },
-            _ => Err(Re0Error::simple_error("{} 不是一个属性名").with_level(2)),
+            _ => Err(Re0Error::simple_error("{} 不是一个属性名")),
         }
     }
     fn try_add(&mut self, lhs: Value, rhs: Value) -> Result<Value> {

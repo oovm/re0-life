@@ -1,3 +1,4 @@
+pub use self::binary::BinaryExpression;
 use crate::value::Value;
 pub use crate::value::{get_flatten_vec, Dict};
 use std::iter::{Chain, Cloned};
@@ -55,13 +56,6 @@ impl IfStatement {
         let always_true = IfBranch { if_true: true, condition: ASTNode::TRUE, body: self.otherwise.clone() };
         self.branch.iter().cloned().chain(vec![always_true].into_iter())
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct BinaryExpression {
-    pub lhs: ASTNode,
-    pub rhs: ASTNode,
-    pub operator: String,
 }
 
 impl Default for ASTKind {

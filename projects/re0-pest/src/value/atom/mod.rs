@@ -40,23 +40,23 @@ impl PartialEq for Value {
 }
 
 impl PartialOrd for Value {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, _other: &Self) -> Option<Ordering> {
         todo!()
     }
 
-    fn lt(&self, other: &Self) -> bool {
+    fn lt(&self, _other: &Self) -> bool {
         todo!()
     }
 
-    fn le(&self, other: &Self) -> bool {
+    fn le(&self, _other: &Self) -> bool {
         todo!()
     }
 
-    fn gt(&self, other: &Self) -> bool {
+    fn gt(&self, _other: &Self) -> bool {
         todo!()
     }
 
-    fn ge(&self, other: &Self) -> bool {
+    fn ge(&self, _other: &Self) -> bool {
         todo!()
     }
 }
@@ -64,13 +64,13 @@ impl PartialOrd for Value {
 impl Add<Self> for Value {
     type Output = Value;
 
-    fn add(self, rhs: Self) -> Self::Output {
+    fn add(self, _rhs: Self) -> Self::Output {
         todo!()
     }
 }
 
 impl AddAssign<Self> for Value {
-    fn add_assign(&mut self, rhs: Self) {
+    fn add_assign(&mut self, _rhs: Self) {
         todo!()
     }
 }
@@ -78,13 +78,13 @@ impl AddAssign<Self> for Value {
 impl Sub<Self> for Value {
     type Output = Value;
 
-    fn sub(self, rhs: Self) -> Self::Output {
+    fn sub(self, _rhs: Self) -> Self::Output {
         todo!()
     }
 }
 
 impl SubAssign<Self> for Value {
-    fn sub_assign(&mut self, rhs: Self) {
+    fn sub_assign(&mut self, _rhs: Self) {
         todo!()
     }
 }

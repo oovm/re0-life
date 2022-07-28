@@ -1,9 +1,6 @@
 use re0_pest::{Error, ErrorVariant, LineColLocation, Rule};
 
-use crate::{
-    errors::{Re0ErrorKind, Re0ErrorLevel},
-    Re0Error,
-};
+use crate::{errors::Re0ErrorKind, Re0Error};
 
 impl From<Error<Rule>> for Re0Error {
     fn from(e: Error<Rule>) -> Self {
@@ -21,6 +18,6 @@ impl From<Error<Rule>> for Re0Error {
             LineColLocation::Pos(_) => None,
             LineColLocation::Span(start, _) => Some((start.0 as u32, start.1 as u32)),
         };
-        Self { kind: box Re0ErrorKind::SyntaxError(kind), level: Re0ErrorLevel::Error, file: None, position }
+        Self { kind: box Re0ErrorKind::SyntaxError(kind), file: None, position }
     }
 }

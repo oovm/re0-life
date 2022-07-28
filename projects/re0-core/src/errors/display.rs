@@ -1,7 +1,5 @@
 use super::*;
 
-
-
 impl Error for Re0Error {}
 
 impl Display for Re0Error {
@@ -12,6 +10,6 @@ impl Display for Re0Error {
 
 impl Default for Re0Error {
     fn default() -> Self {
-        Self { kind: Box::new(Re0ErrorKind::UnknownError), level: Re0ErrorLevel::Info, file: None, position: None }
+        Self { kind: Box::new(Re0ErrorKind::UnknownError), file: None, position: None }
     }
 }
