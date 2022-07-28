@@ -5,6 +5,12 @@ use crate::{
     Re0Error,
 };
 
+impl From<String> for Re0Error {
+    fn from(e: String) -> Self {
+        Re0Error { kind: box Re0ErrorKind::SimpleError(e), level: Re0ErrorLevel::Error, file: None, position: None }
+    }
+}
+
 impl From<ParseIntError> for Re0Error {
     fn from(e: ParseIntError) -> Self {
         Re0Error { kind: box Re0ErrorKind::SyntaxError(e.to_string()), level: Re0ErrorLevel::Error, file: None, position: None }

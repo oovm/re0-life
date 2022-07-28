@@ -1,7 +1,4 @@
-use re0_pest::{
-    pest::error::{ErrorVariant, LineColLocation},
-    Error, Rule,
-};
+use re0_pest::{Error, ErrorVariant, LineColLocation, Rule};
 
 use crate::{
     errors::{Re0ErrorKind, Re0ErrorLevel},

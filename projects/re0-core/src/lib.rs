@@ -3,10 +3,9 @@
 #![feature(iter_intersperse)]
 #![feature(once_cell)]
 
-pub use errors::{Re0Error, Result};
 pub use self::vm::{GameVM, Re0Function, Template};
+pub use errors::{Re0Error, Result};
 
 mod errors;
-pub mod ast;
-pub mod world;
 mod vm;
+pub mod world;

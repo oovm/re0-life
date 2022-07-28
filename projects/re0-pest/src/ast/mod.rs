@@ -1,12 +1,9 @@
-pub use self::{
-    atom_value::{Atom, NumberLiteral},
-    collection::{get_flatten_vec, Dict},
-};
+use crate::value::Atom;
+use crate::value::NumberLiteral;
+pub use crate::value::{get_flatten_vec, Dict};
 
-mod atom_value;
-mod collection;
-mod parser;
 mod evaluate;
+mod parser;
 
 #[derive(Debug, Clone, Default)]
 pub struct ASTNode {
@@ -101,5 +98,3 @@ pub struct DeclareStatement {
     modifiers: Vec<String>,
     children: Vec<ASTNode>,
 }
-
-

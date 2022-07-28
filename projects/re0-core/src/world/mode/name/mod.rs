@@ -2,8 +2,9 @@ use std::str::FromStr;
 
 use distributions::Bernoulli;
 use rand::{distributions, distributions::Distribution, seq::SliceRandom, Rng};
+use re0_pest::ast::{get_flatten_vec, Dict};
 
-use crate::world::{get_flatten_vec, Dict, WorldConfig};
+use crate::world::WorldConfig;
 
 #[derive(Debug, Clone, Default)]
 pub struct NameConfig {

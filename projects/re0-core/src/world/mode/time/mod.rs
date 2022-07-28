@@ -6,8 +6,8 @@ use std::{
 use chrono::{Duration, NaiveDateTime};
 use rand::Rng;
 
-use crate::{ast::NumberLiteral, world::Dict, Re0Error, Result};
-
+use crate::{Re0Error, Result};
+use re0_pest::value::{Dict, NumberLiteral};
 mod parsing;
 
 #[derive(Clone, Debug)]

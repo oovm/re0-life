@@ -1,16 +1,14 @@
-use std::convert::TryFrom;
 
-use pest::error::ErrorVariant;
+
+
 
 use pest::iterators::Pair;
 use pest::Parser;
 
-use crate::ast::Atom;
-use crate::{
-    ast::{ASTNode, NumberLiteral},
-    Error, Re0Parser, Result, Rule,
-};
+use crate::value::Atom;
+use crate::{ast::ASTNode, Error, Re0Parser, Result, Rule};
 
+pub mod atom_value;
 mod operators;
 
 struct ParseContext {
@@ -22,11 +20,6 @@ impl Default for ParseContext {
     fn default() -> Self {
         Self { errors: vec![], documents: "".to_string() }
     }
-}
-
-pub(crate) fn error_span<T>(s: Pair<Rule>, message: String) -> Result<T> {
-    let error = ErrorVariant::CustomError { message };
-    Err(Error::new_from_span(error, s.as_span()))
 }
 
 #[test]
@@ -137,7 +130,7 @@ impl ParseContext {
         let pair = pairs.into_inner().next().unwrap();
         let symbol = match pair.as_rule() {
             Rule::SYMBOL => self.symbol(pair)?,
-            Rule::Number => ASTNode::number(NumberLiteral::try_from(pair)?),
+            Rule::Number => ASTNode::number(self.number(pair)?),
             _ => debug_cases!(pair),
         };
         Ok(symbol)

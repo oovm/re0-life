@@ -1,6 +1,7 @@
+use re0_pest::ast::ASTKind;
 use std::collections::BTreeMap;
 
-use crate::{ast::ASTKind, world::World, Result};
+use crate::{world::World, Result};
 
 pub struct GameVM {
     pub templates: Template,
