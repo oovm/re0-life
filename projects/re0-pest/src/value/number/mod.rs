@@ -1,7 +1,25 @@
-use crate::value::Atom;
 use std::fmt::{Debug, Formatter};
 
+use crate::ast::{ASTKind, ASTNode};
+use crate::value::Atom;
+
 mod time;
+
+impl ASTNode {
+    pub fn atomic<N>(input: N) -> Self
+    where
+        N: Into<Atom>,
+    {
+        Self { kind: ASTKind::Value(input.into()) }
+    }
+    pub fn integer<S>(input: i64, suffix: S) -> Self
+    where
+        S: Into<String>,
+    {
+        let n = Atom::Integer(input, suffix.into());
+        Self { kind: ASTKind::Value(n) }
+    }
+}
 
 #[derive(Clone)]
 pub struct NumberLiteral {
@@ -24,25 +42,13 @@ impl NumberLiteral {
     }
 
     pub fn get_i64(&self) -> i64 {
-        match self.value {
-            Atom::Symbol(_) => unreachable!(),
-            Atom::Integer(n) => n,
-            Atom::Decimal(n) => n as i64,
-        }
+        self.value.as_i64()
     }
     pub fn get_f64(&self) -> f64 {
-        match self.value {
-            Atom::Symbol(_) => unreachable!(),
-            Atom::Integer(n) => n as f64,
-            Atom::Decimal(n) => n,
-        }
+        self.value.as_f64()
     }
     pub fn get_f32(&self) -> f32 {
-        match self.value {
-            Atom::Symbol(_) => unreachable!(),
-            Atom::Integer(n) => n as f32,
-            Atom::Decimal(n) => n as f32,
-        }
+        self.value.as_f64() as f32
     }
     pub fn get_unit(&self) -> &str {
         self.suffix.as_str()

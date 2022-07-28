@@ -1,9 +1,11 @@
 use crate::value::Atom;
 use crate::value::NumberLiteral;
 pub use crate::value::{get_flatten_vec, Dict};
-use std::iter::Chain;
+use std::iter::{Chain, Cloned};
 use std::slice::Iter;
+use std::vec::IntoIter;
 
+mod binary;
 mod evaluate;
 mod parser;
 
@@ -17,12 +19,10 @@ pub enum ASTKind {
     Root(Vec<ASTNode>),
     Declare(DeclareStatement),
     IfStatement(Box<IfStatement>),
-    Expression(Box<Expression>),
+    Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
     Pair(Atom, Box<ASTNode>),
-    Number(NumberLiteral),
-    Symbol(String),
-    Boolean(bool),
+    Value(Atom),
     Never,
 }
 
@@ -44,7 +44,7 @@ pub struct IfStatement {
     branch: Vec<IfBranch>,
     otherwise: Vec<ASTNode>,
 }
-
+#[derive(Debug, Clone)]
 pub struct IfBranch {
     pub if_true: bool,
     pub condition: ASTNode,
@@ -52,16 +52,16 @@ pub struct IfBranch {
 }
 
 impl IfStatement {
-    pub fn branches(&self) -> Chain<Iter<'_, IfBranch>, Iter<'_, IfBranch>> {
+    pub fn branches(&self) -> Chain<Cloned<Iter<'_, IfBranch>>, IntoIter<IfBranch>> {
         let always_true = IfBranch { if_true: true, condition: ASTNode { kind: ASTKind::Boolean(true) }, body: self.otherwise.clone() };
-        self.branch.iter().chain(vec![always_true].iter())
+        self.branch.iter().cloned().chain(vec![always_true].into_iter())
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Expression {
-    pub left: ASTNode,
-    pub right: ASTNode,
+pub struct BinaryExpression {
+    pub lhs: ASTNode,
+    pub rhs: ASTNode,
     pub operator: String,
 }
 
@@ -81,12 +81,13 @@ impl ASTNode {
         Self { kind: ASTKind::Declare(s) }
     }
 
-    pub fn if_statement(if_true: bool, condition: ASTNode, children: Vec<ASTNode>) -> Self {
-        Self { kind: ASTKind::IfStatement(box IfStatement { if_true, branch: condition, otherwise: children }) }
+    pub fn if_simple(if_true: bool, condition: ASTNode, children: Vec<ASTNode>) -> Self {
+        let branch = IfBranch { if_true, condition, body: children };
+        Self { kind: ASTKind::IfStatement(box IfStatement { branch: vec![branch], otherwise: vec![] }) }
     }
 
     pub fn binary_expression(left: ASTNode, right: ASTNode, operator: &str) -> Self {
-        Self { kind: ASTKind::Expression(box Expression { left, right, operator: operator.to_string() }) }
+        Self { kind: ASTKind::Expression(box BinaryExpression { lhs: left, rhs: right, operator: operator.to_string() }) }
     }
 
     pub fn block(children: Vec<ASTNode>) -> Self {
@@ -99,13 +100,6 @@ impl ASTNode {
 
     pub fn pair(key: Atom, value: ASTNode) -> Self {
         Self { kind: ASTKind::Pair(key, box value) }
-    }
-
-    pub fn number<N>(input: N) -> Self
-    where
-        N: Into<NumberLiteral>,
-    {
-        Self { kind: ASTKind::Number(input.into()) }
     }
 }
 

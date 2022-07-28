@@ -2,17 +2,21 @@ use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Debug, Clone)]
 pub enum Atom {
+    Null,
+    Boolean(bool),
     Symbol(String),
-    Integer(i64),
-    Decimal(f64),
+    Integer(i64, String),
+    Decimal(f64, String),
 }
 
 impl Display for Atom {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Atom::Symbol(s) => f.write_str(s),
-            Atom::Integer(s) => write!(f, "{}", s),
-            Atom::Decimal(s) => write!(f, "{}", s),
+            Atom::Null => write!(f, "null"),
+            Atom::Boolean(v) => write!(f, "{}", v),
+            Atom::Symbol(v) => write!(f, "{}", v),
+            Atom::Integer(v, s) => write!(f, "{}{}", v, s),
+            Atom::Decimal(v, s) => write!(f, "{}{}", v, s),
         }
     }
 }
@@ -25,29 +29,45 @@ impl From<&str> for Atom {
 
 impl From<i64> for Atom {
     fn from(n: i64) -> Self {
-        Self::Integer(n)
+        Self::Integer(n, String::new())
     }
 }
 
 impl From<f64> for Atom {
     fn from(n: f64) -> Self {
-        Self::Decimal(n)
+        Self::Decimal(n, String::new())
     }
 }
 
 impl Atom {
-    pub fn as_str(&self) -> &str {
+    pub fn as_string(&self) -> String {
         match self {
-            Self::Symbol(s) => s.as_str(),
-            Self::Integer(_) => unreachable!(),
-            Self::Decimal(_) => unreachable!(),
+            Self::Symbol(v) => v.clone(),
+            Self::Integer(_, v) => v.to_string(),
+            Self::Decimal(_, v) => v.to_string(),
+            _ => unreachable!(),
         }
     }
     pub fn as_i64(&self) -> i64 {
         match self {
-            Self::Symbol(s) => s.parse::<i64>().unwrap(),
-            Self::Integer(n) => *n,
-            Self::Decimal(_) => unreachable!(),
+            Self::Integer(n, _) => *n as i64,
+            Self::Decimal(n, _) => *n as i64,
+            Self::Boolean(n) => match *n {
+                true => 0,
+                false => -1,
+            },
+            _ => unreachable!(),
+        }
+    }
+    pub fn as_f64(&self) -> f64 {
+        match self {
+            Self::Integer(n, _) => *n as f64,
+            Self::Decimal(n, _) => *n as f64,
+            Self::Boolean(n) => match *n {
+                true => 0.0,
+                false => -1.0,
+            },
+            _ => unreachable!(),
         }
     }
 }

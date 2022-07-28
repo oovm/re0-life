@@ -1,6 +1,7 @@
 use chrono::NaiveDateTime;
+use std::ops::Add;
 
-use re0_pest::ast::{ASTKind, ASTNode, IfStatement};
+use re0_pest::ast::{ASTKind, ASTNode, BinaryExpression, IfStatement};
 
 use crate::{GameVM, Result};
 
@@ -23,12 +24,6 @@ impl GameVM {
 
 pub trait Evaluate {
     fn evaluate(&self, vm: &mut GameVM) -> Result<ASTNode>;
-    fn is_true(&self, vm: &mut GameVM) -> Result<bool> {
-        match self.evaluate(vm)?.kind {
-            ASTKind::Boolean(v) => Ok(v),
-            _ => unreachable!(),
-        }
-    }
 }
 
 impl Evaluate for ASTNode {
@@ -36,7 +31,7 @@ impl Evaluate for ASTNode {
         let out = match &self.kind {
             ASTKind::Root(_) | ASTKind::Declare(_) => unreachable!(),
             ASTKind::IfStatement(s) => s.evaluate(vm)?,
-            ASTKind::Expression(_) => {}
+            ASTKind::Expression(s) => s.evaluate(vm)?,
             ASTKind::Block(s) => {
                 let mut children = vec![];
                 for child in s {
@@ -44,8 +39,10 @@ impl Evaluate for ASTNode {
                 }
                 ASTNode::block(children)
             }
-            ASTKind::Pair(_, _) => {}
-            ASTKind::Number(_) | ASTKind::Symbol(_) | ASTKind::Boolean(_) | ASTKind::Never => self.clone(),
+            ASTKind::Pair(_, _) => {
+                todo!()
+            }
+            ASTKind::Value(_) | ASTKind::Symbol(_) | ASTKind::Boolean(_) | ASTKind::Never => self.clone(),
         };
         Ok(out)
     }
@@ -69,5 +66,27 @@ impl Evaluate for IfStatement {
             return Ok(last);
         }
         return unreachable!();
+    }
+}
+
+impl Evaluate for BinaryExpression {
+    fn evaluate(&self, vm: &mut GameVM) -> Result<ASTNode> {
+        let out = match self.operator.as_str() {
+            ">" => self.lhs.evaluate(vm)? > self.rhs.evaluate(vm)?,
+            "<" => self.lhs.evaluate(vm)? < self.rhs.evaluate(vm)?,
+            ">=" => self.lhs.evaluate(vm)? >= self.rhs.evaluate(vm)?,
+            "<=" => self.lhs.evaluate(vm)? <= self.rhs.evaluate(vm)?,
+            "==" => self.lhs.evaluate(vm)? == self.rhs.evaluate(vm)?,
+            "!=" => self.lhs.evaluate(vm)? != self.rhs.evaluate(vm)?,
+            "+" => self.lhs.evaluate(vm)? + self.rhs.evaluate(vm)?,
+            "-" => self.lhs.evaluate(vm)? - self.rhs.evaluate(vm)?,
+            "*" => self.lhs.evaluate(vm)? * self.rhs.evaluate(vm)?,
+            "/" => self.lhs.evaluate(vm)? / self.rhs.evaluate(vm)?,
+            "%" => self.lhs.evaluate(vm)? % self.rhs.evaluate(vm)?,
+            "&&" => self.lhs.evaluate(vm)? && self.rhs.evaluate(vm)?,
+            "||" => self.lhs.evaluate(vm)? || self.rhs.evaluate(vm)?,
+            _ => unreachable!(),
+        };
+        return Ok(out);
     }
 }

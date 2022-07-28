@@ -1,7 +1,3 @@
-
-
-
-
 use pest::iterators::Pair;
 use pest::Parser;
 
@@ -121,7 +117,7 @@ impl ParseContext {
                 _ => debug_cases!(pair),
             }
         }
-        Ok(ASTNode::if_statement(if_true, cond, children))
+        Ok(ASTNode::if_simple(if_true, cond, children))
     }
 }
 
@@ -130,7 +126,7 @@ impl ParseContext {
         let pair = pairs.into_inner().next().unwrap();
         let symbol = match pair.as_rule() {
             Rule::SYMBOL => self.symbol(pair)?,
-            Rule::Number => ASTNode::number(self.number(pair)?),
+            Rule::Number => ASTNode::atomic(self.number(pair)?),
             _ => debug_cases!(pair),
         };
         Ok(symbol)
