@@ -1,7 +1,9 @@
+use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Add, AddAssign};
 
 #[derive(Debug, Clone)]
-pub enum Atom {
+pub enum Value {
     Null,
     Boolean(bool),
     Symbol(String),
@@ -9,65 +11,66 @@ pub enum Atom {
     Decimal(f64, String),
 }
 
-impl Display for Atom {
+impl Display for Value {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Atom::Null => write!(f, "null"),
-            Atom::Boolean(v) => write!(f, "{}", v),
-            Atom::Symbol(v) => write!(f, "{}", v),
-            Atom::Integer(v, s) => write!(f, "{}{}", v, s),
-            Atom::Decimal(v, s) => write!(f, "{}{}", v, s),
+            Value::Null => write!(f, "null"),
+            Value::Boolean(v) => write!(f, "{}", v),
+            Value::Symbol(v) => write!(f, "{}", v),
+            Value::Integer(v, s) => write!(f, "{}{}", v, s),
+            Value::Decimal(v, s) => write!(f, "{}{}", v, s),
         }
     }
 }
 
-impl From<&str> for Atom {
+impl From<&str> for Value {
     fn from(key: &str) -> Self {
         Self::Symbol(key.to_string())
     }
 }
 
-impl From<i64> for Atom {
-    fn from(n: i64) -> Self {
-        Self::Integer(n, String::new())
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (_, _) => {
+                todo!()
+            }
+        }
     }
 }
 
-impl From<f64> for Atom {
-    fn from(n: f64) -> Self {
-        Self::Decimal(n, String::new())
+impl PartialOrd for Value {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        todo!()
+    }
+
+    fn lt(&self, other: &Self) -> bool {
+        todo!()
+    }
+
+    fn le(&self, other: &Self) -> bool {
+        todo!()
+    }
+
+    fn gt(&self, other: &Self) -> bool {
+        todo!()
+    }
+
+    fn ge(&self, other: &Self) -> bool {
+        todo!()
     }
 }
 
-impl Atom {
-    pub fn as_string(&self) -> String {
-        match self {
-            Self::Symbol(v) => v.clone(),
-            Self::Integer(_, v) => v.to_string(),
-            Self::Decimal(_, v) => v.to_string(),
-            _ => unreachable!(),
-        }
+impl Add<Self> for Value {
+    type Output = Value;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        todo!()
     }
-    pub fn as_i64(&self) -> i64 {
-        match self {
-            Self::Integer(n, _) => *n as i64,
-            Self::Decimal(n, _) => *n as i64,
-            Self::Boolean(n) => match *n {
-                true => 0,
-                false => -1,
-            },
-            _ => unreachable!(),
-        }
-    }
-    pub fn as_f64(&self) -> f64 {
-        match self {
-            Self::Integer(n, _) => *n as f64,
-            Self::Decimal(n, _) => *n as f64,
-            Self::Boolean(n) => match *n {
-                true => 0.0,
-                false => -1.0,
-            },
-            _ => unreachable!(),
-        }
+}
+
+impl AddAssign<Self> for Value {
+    fn add_assign(&mut self, rhs: Self) {
+        todo!()
     }
 }

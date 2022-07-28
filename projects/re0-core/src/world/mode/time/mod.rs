@@ -7,8 +7,9 @@ use chrono::{Duration, NaiveDateTime};
 use rand::Rng;
 
 use crate::{Re0Error, Result};
-use re0_pest::value::{Dict, NumberLiteral};
+use re0_pest::value::{Dict, Value};
 mod parsing;
+mod time_unit;
 
 #[derive(Clone, Debug)]
 #[doc = include_str!("time_manager.md")]
@@ -48,12 +49,12 @@ impl TimeManager {
         self.current.add_assign(time)
     }
 
-    pub fn next_by(&mut self, time: &NumberLiteral) -> Result<()> {
+    pub fn next_by(&mut self, time: &Value) -> Result<()> {
         self.current.add_assign(Duration::microseconds(time.get_time()?));
         Ok(())
     }
 
-    pub fn back_by(&mut self, time: &NumberLiteral) -> Result<()> {
+    pub fn back_by(&mut self, time: &Value) -> Result<()> {
         self.current.sub_assign(Duration::microseconds(time.get_time()?));
         Ok(())
     }

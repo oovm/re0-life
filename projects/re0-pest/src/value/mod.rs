@@ -3,11 +3,10 @@ use crate::Rule;
 use pest::error::{Error, ErrorVariant};
 use pest::iterators::Pair;
 
-pub use self::atom::Atom;
+pub use self::atom::Value;
 pub use self::collection::{get_flatten_vec, Dict};
-pub use self::number::NumberLiteral;
-
 mod atom;
+mod boolean;
 mod collection;
 mod number;
 

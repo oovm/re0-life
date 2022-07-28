@@ -1,5 +1,4 @@
-use crate::value::Atom;
-use crate::value::NumberLiteral;
+use crate::value::Value;
 pub use crate::value::{get_flatten_vec, Dict};
 use std::iter::{Chain, Cloned};
 use std::slice::Iter;
@@ -21,8 +20,8 @@ pub enum ASTKind {
     IfStatement(Box<IfStatement>),
     Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
-    Pair(Atom, Box<ASTNode>),
-    Value(Atom),
+    Pair(Value, Box<ASTNode>),
+    Value(Value),
     Never,
 }
 
@@ -53,7 +52,7 @@ pub struct IfBranch {
 
 impl IfStatement {
     pub fn branches(&self) -> Chain<Cloned<Iter<'_, IfBranch>>, IntoIter<IfBranch>> {
-        let always_true = IfBranch { if_true: true, condition: ASTNode { kind: ASTKind::Boolean(true) }, body: self.otherwise.clone() };
+        let always_true = IfBranch { if_true: true, condition: ASTNode::TRUE, body: self.otherwise.clone() };
         self.branch.iter().cloned().chain(vec![always_true].into_iter())
     }
 }
@@ -95,21 +94,15 @@ impl ASTNode {
     }
 
     pub fn symbol(symbol: &str) -> Self {
-        Self { kind: ASTKind::Symbol(symbol.to_string()) }
+        Self { kind: ASTKind::Value(Value::Symbol(symbol.to_string())) }
     }
 
-    pub fn pair(key: Atom, value: ASTNode) -> Self {
+    pub fn pair(key: Value, value: ASTNode) -> Self {
         Self { kind: ASTKind::Pair(key, box value) }
     }
-}
 
-impl From<ASTNode> for String {
-    fn from(node: ASTNode) -> Self {
-        match node.kind {
-            ASTKind::Symbol(s) => s,
-            _ => unreachable!(),
-        }
-    }
+    pub const TRUE: Self = Self { kind: ASTKind::Value(Value::Boolean(true)) };
+    pub const FALSE: Self = Self { kind: ASTKind::Value(Value::Boolean(false)) };
 }
 
 #[derive(Debug, Clone)]

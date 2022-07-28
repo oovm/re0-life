@@ -1,7 +1,7 @@
 use pest::iterators::Pair;
 use pest::Parser;
 
-use crate::value::Atom;
+use crate::value::Value;
 use crate::{ast::ASTNode, Error, Re0Parser, Result, Rule};
 
 pub mod atom_value;
@@ -131,11 +131,11 @@ impl ParseContext {
         };
         Ok(symbol)
     }
-    fn key(&mut self, pairs: Pair<Rule>) -> Result<Atom> {
+    fn key(&mut self, pairs: Pair<Rule>) -> Result<Value> {
         let head = pairs.into_inner().next().unwrap();
         let symbol = match head.as_rule() {
-            Rule::SYMBOL => Atom::Symbol(head.as_str().to_string()),
-            Rule::Integer => Atom::try_as_i64(head)?,
+            Rule::SYMBOL => Value::Symbol(head.as_str().to_string()),
+            Rule::Integer => Value::ast_i64(head, "")?,
             _ => debug_cases!(head),
         };
         Ok(symbol)

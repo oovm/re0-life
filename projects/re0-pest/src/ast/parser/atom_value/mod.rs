@@ -3,37 +3,35 @@ use std::{f64, str::FromStr};
 use pest::iterators::Pair;
 
 use crate::ast::parser::ParseContext;
-use crate::value::NumberLiteral;
-use crate::value::{error_span, Atom};
+use crate::value::{error_span, Value};
 use crate::{Result, Rule};
 
-impl Atom {
-    pub(crate) fn try_as_i64(s: Pair<Rule>) -> Result<Self> {
+impl Value {
+    pub(crate) fn ast_i64(s: Pair<Rule>, suffix: &str) -> Result<Self> {
         match i64::from_str(s.as_str()) {
-            Ok(o) => Ok(Atom::Integer(o, String::new())),
+            Ok(o) => Ok(Value::Integer(o, suffix.to_string())),
             Err(e) => error_span(s, e.to_string()),
         }
     }
-    pub(crate) fn try_f64(s: Pair<Rule>) -> Result<Self> {
+    pub(crate) fn ast_f64(s: Pair<Rule>, suffix: &str) -> Result<Self> {
         match f64::from_str(s.as_str()) {
-            Ok(o) => Ok(Atom::Decimal(o, String::new())),
+            Ok(o) => Ok(Value::Decimal(o, suffix.to_string())),
             Err(e) => error_span(s, e.to_string()),
         }
     }
 }
 
 impl ParseContext {
-    pub(super) fn number(&mut self, pairs: Pair<Rule>) -> Result<NumberLiteral> {
+    pub(super) fn number(&mut self, pairs: Pair<Rule>) -> Result<Value> {
         let mut pairs = pairs.into_inner();
         let num = pairs.next().unwrap();
-        let value = match num.as_rule() {
-            Rule::Integer => Atom::try_as_i64(num)?,
-            _ => unreachable!("{:?}", num.as_rule()),
-        };
         let suffix = match pairs.next() {
             Some(s) => s.as_str(),
             None => "",
         };
-        Ok(NumberLiteral::new(value, suffix))
+        match num.as_rule() {
+            Rule::Integer => Value::ast_i64(num, suffix),
+            _ => unreachable!("{:?}", num.as_rule()),
+        }
     }
 }

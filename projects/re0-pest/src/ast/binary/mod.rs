@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::ops::Add;
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTKind, ASTNode};
 
 impl Add<Self> for ASTNode {
     type Output = Self;
@@ -22,25 +22,37 @@ impl PartialEq<Self> for ASTNode {
 
 impl PartialOrd<Self> for ASTNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        todo!()
+        match (&self.kind, &other.kind) {
+            (ASTKind::Value(lhs), ASTKind::Value(rhs)) => lhs.partial_cmp(rhs),
+            _ => None,
+        }
     }
 
     fn lt(&self, other: &Self) -> bool {
-        match (self, other) {
-            (ASTNode::NumberLiteral(lhs), ASTNode::NumberLiteral(rhs)) => lhs.value < rhs.value,
+        match (&self.kind, &other.kind) {
+            (ASTKind::Value(lhs), ASTKind::Value(rhs)) => lhs < rhs,
             _ => false,
         }
     }
 
     fn le(&self, other: &Self) -> bool {
-        todo!()
+        match (&self.kind, &other.kind) {
+            (ASTKind::Value(lhs), ASTKind::Value(rhs)) => lhs <= rhs,
+            _ => false,
+        }
     }
 
     fn gt(&self, other: &Self) -> bool {
-        todo!()
+        match (&self.kind, &other.kind) {
+            (ASTKind::Value(lhs), ASTKind::Value(rhs)) => lhs > rhs,
+            _ => false,
+        }
     }
 
     fn ge(&self, other: &Self) -> bool {
-        todo!()
+        match (&self.kind, &other.kind) {
+            (ASTKind::Value(lhs), ASTKind::Value(rhs)) => lhs >= rhs,
+            _ => false,
+        }
     }
 }

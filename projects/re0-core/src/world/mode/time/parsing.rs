@@ -1,5 +1,4 @@
 use super::*;
-use re0_pest::value::NumberLiteral;
 
 impl FromStr for TimeMode {
     type Err = Re0Error;
