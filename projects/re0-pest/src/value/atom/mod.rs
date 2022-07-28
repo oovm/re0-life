@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Debug, Clone)]
 pub enum Value {
@@ -71,6 +71,20 @@ impl Add<Self> for Value {
 
 impl AddAssign<Self> for Value {
     fn add_assign(&mut self, rhs: Self) {
+        todo!()
+    }
+}
+
+impl Sub<Self> for Value {
+    type Output = Value;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        todo!()
+    }
+}
+
+impl SubAssign<Self> for Value {
+    fn sub_assign(&mut self, rhs: Self) {
         todo!()
     }
 }

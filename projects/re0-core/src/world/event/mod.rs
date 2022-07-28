@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, SubAssign};
 
 use chrono::NaiveDateTime;
 
@@ -7,7 +7,7 @@ use re0_pest::{
     value::Value,
 };
 
-use crate::{GameVM, Result};
+use crate::{GameVM, Re0Error, Result};
 
 pub struct Event {
     ///
@@ -23,8 +23,20 @@ pub struct Event {
 impl GameVM {
     pub fn perform_events(&mut self) {}
     pub fn perform_event(&mut self, event: &Event) {}
-    pub fn get_value_mut(&mut self, key: Value) -> &mut Value {
-        todo!()
+    fn value_mut(&mut self, v: &Value) -> Result<&mut Value> {
+        match v {
+            Value::Symbol(s) => match self.world.property.get_mut(s) {
+                Some(s) => Ok(s),
+                None => Err(Re0Error::simple_error(" {} 属性不存在").with_level(1)),
+            },
+            _ => Err(Re0Error::simple_error("{} 不是一个属性名").with_level(2)),
+        }
+    }
+    fn try_add(&mut self, lhs: Value, rhs: Value) -> Result<Value> {
+        Ok(Value::from(self.value_mut(&lhs)?.add_assign(rhs)))
+    }
+    fn try_sub(&mut self, lhs: Value, rhs: Value) -> Result<Value> {
+        Ok(Value::from(self.value_mut(&lhs)?.sub_assign(rhs)))
     }
 }
 
@@ -78,24 +90,26 @@ impl Evaluate for IfStatement {
 
 impl Evaluate for BinaryExpression {
     fn evaluate(&self, vm: &mut GameVM) -> Result<Value> {
+        let lhs = self.lhs.evaluate(vm)?;
+        let rhs = self.rhs.evaluate(vm)?;
         let out = match self.operator.as_str() {
-            ">" => Value::Boolean(self.lhs.evaluate(vm)? > self.rhs.evaluate(vm)?),
-            "<" => Value::Boolean(self.lhs.evaluate(vm)? < self.rhs.evaluate(vm)?),
-            ">=" => Value::Boolean(self.lhs.evaluate(vm)? >= self.rhs.evaluate(vm)?),
-            "<=" => Value::Boolean(self.lhs.evaluate(vm)? <= self.rhs.evaluate(vm)?),
-            "==" => Value::Boolean(self.lhs.evaluate(vm)? == self.rhs.evaluate(vm)?),
-            "!=" => Value::Boolean(self.lhs.evaluate(vm)? != self.rhs.evaluate(vm)?),
-            "+" => self.lhs.evaluate(vm)? + self.rhs.evaluate(vm)?,
-            "+=" => Value::from(vm.get_value_mut(self.lhs.evaluate(vm)?).add_assign(self.rhs.evaluate(vm)?)),
-            "-" => self.lhs.evaluate(vm)? - self.rhs.evaluate(vm)?,
-            "-=" => vm.get_value_mut(self.lhs.evaluate(vm)?) -= self.rhs.evaluate(vm)?,
-            "*" => self.lhs.evaluate(vm)? * self.rhs.evaluate(vm)?,
-            "*=" => vm.get_value_mut(self.lhs.evaluate(vm)?) *= self.rhs.evaluate(vm)?,
-            "/" => self.lhs.evaluate(vm)? / self.rhs.evaluate(vm)?,
-            "/=" => self.lhs.evaluate(vm)? /= self.rhs.evaluate(vm)?,
-            "%" => self.lhs.evaluate(vm)? % self.rhs.evaluate(vm)?,
-            "&&" => self.lhs.evaluate(vm)? && self.rhs.evaluate(vm)?,
-            "||" => self.lhs.evaluate(vm)? || self.rhs.evaluate(vm)?,
+            ">" => Value::from(lhs > rhs),
+            "<" => Value::from(lhs < rhs),
+            ">=" => Value::from(lhs >= rhs),
+            "<=" => Value::from(lhs <= rhs),
+            "==" => Value::from(lhs == rhs),
+            "!=" => Value::from(lhs != rhs),
+            "+" => lhs + rhs,
+            "+=" => vm.try_add(lhs, rhs)?,
+            "-" => lhs - rhs,
+            "-=" => vm.try_sub(lhs, rhs)?,
+            // "*" => self.lhs.evaluate(vm)? * self.rhs.evaluate(vm)?,
+            // "*=" => vm.get_value_mut(self.lhs.evaluate(vm)?) *= self.rhs.evaluate(vm)?,
+            // "/" => self.lhs.evaluate(vm)? / self.rhs.evaluate(vm)?,
+            // "/=" => self.lhs.evaluate(vm)? /= self.rhs.evaluate(vm)?,
+            // "%" => self.lhs.evaluate(vm)? % self.rhs.evaluate(vm)?,
+            // "&&" => self.lhs.evaluate(vm)? && self.rhs.evaluate(vm)?,
+            // "||" => self.lhs.evaluate(vm)? || self.rhs.evaluate(vm)?,
             _ => unreachable!(),
         };
         return Ok(out);

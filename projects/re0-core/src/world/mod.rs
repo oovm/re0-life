@@ -1,11 +1,15 @@
 pub use self::mode::*;
+use re0_pest::value::Value;
+use std::collections::BTreeMap;
 
 mod event;
 mod mode;
+mod property;
 
 #[derive(Debug, Clone)]
 pub struct World {
-    mode: WorldConfig,
+    pub mode: WorldConfig,
+    property: BTreeMap<String, Value>,
 }
 
 #[derive(Debug, Clone, Default)]
