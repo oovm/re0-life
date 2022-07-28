@@ -1,18 +1,20 @@
-use std::{mem::take, ops::AddAssign, str::FromStr};
+use std::convert::TryFrom;
 
-use re0_pest::{Pair, Parser, Re0Parser, Rule};
+use pest::error::ErrorVariant;
 
-use crate::{
-    ast::{ASTKind, ASTNode, NumberLiteral},
-    world::{World, WorldConfig},
-    Re0Error, Result,
-};
+use pest::iterators::Pair;
+use pest::Parser;
+
 use crate::ast::Atom;
+use crate::{
+    ast::{ASTNode, NumberLiteral},
+    Error, Re0Parser, Result, Rule,
+};
 
 mod operators;
 
 struct ParseContext {
-    errors: Vec<Re0Error>,
+    errors: Vec<Error<Rule>>,
     documents: String,
 }
 
@@ -22,13 +24,16 @@ impl Default for ParseContext {
     }
 }
 
+pub(crate) fn error_span<T>(s: Pair<Rule>, message: String) -> Result<T> {
+    let error = ErrorVariant::CustomError { message };
+    Err(Error::new_from_span(error, s.as_span()))
+}
+
 #[test]
 fn test() {
-    let mut world = World::default();
     let mut state = ParseContext::default();
     let ast = state.parse(include_str!("世界.re0")).unwrap();
     println!("{:#?}", ast);
-    world.
 }
 
 macro_rules! debug_cases {
@@ -108,7 +113,7 @@ impl ParseContext {
         Ok(out)
     }
     fn if_statement(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        let mut children = vec![];
+        let children = vec![];
         let mut if_true = true;
         let mut cond = ASTNode::default();
         for pair in pairs.into_inner() {
@@ -141,7 +146,7 @@ impl ParseContext {
         let head = pairs.into_inner().next().unwrap();
         let symbol = match head.as_rule() {
             Rule::SYMBOL => Atom::Symbol(head.as_str().to_string()),
-            Rule::Integer => Atom::try_i64(head.as_str())?,
+            Rule::Integer => Atom::try_as_i64(head)?,
             _ => debug_cases!(head),
         };
         Ok(symbol)

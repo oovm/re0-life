@@ -6,6 +6,7 @@ pub use self::{
 mod atom_value;
 mod collection;
 mod parser;
+mod evaluate;
 
 #[derive(Debug, Clone, Default)]
 pub struct ASTNode {
@@ -100,3 +101,5 @@ pub struct DeclareStatement {
     modifiers: Vec<String>,
     children: Vec<ASTNode>,
 }
+
+

@@ -1,11 +1,12 @@
 use std::lazy::SyncLazy;
+use pest::iterators::Pair;
 
-use re0_pest::{Assoc, Operator, Pair, Pairs, PrecClimber, Rule};
+use pest::prec_climber::{Assoc, PrecClimber};
 
 use crate::{
-    ast::{parser::ParseContext, ASTNode},
-    Result,
+    ast::{parser::ParseContext, ASTNode}, Rule,
 };
+use pest::prec_climber::Operator;
 
 static OPERATORS: SyncLazy<PrecClimber<Rule>> = SyncLazy::new(|| {
     use Assoc::*;

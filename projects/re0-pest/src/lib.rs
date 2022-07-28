@@ -1,16 +1,11 @@
 #![feature(box_syntax)]
 #![feature(once_cell)]
 
-mod re0;
-mod ast;
+pub use pest::error::Error;
 
 pub use re0::{Re0Parser, Rule};
 
+mod ast;
+mod re0;
 
-pub use pest::{
-    self,
-    error::Error,
-    iterators::{Pair, Pairs},
-    prec_climber::{Assoc, Operator, PrecClimber},
-    Parser, Span,
-};
+pub type Result<T> = std::result::Result<T, Error<Rule>>;
