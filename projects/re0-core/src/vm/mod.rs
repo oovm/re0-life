@@ -1,3 +1,4 @@
+mod evaluate;
 use re0_pest::ast::ASTKind;
 use std::collections::BTreeMap;
 

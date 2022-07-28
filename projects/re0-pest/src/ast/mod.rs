@@ -1,6 +1,8 @@
 use crate::value::Atom;
 use crate::value::NumberLiteral;
 pub use crate::value::{get_flatten_vec, Dict};
+use std::iter::Chain;
+use std::slice::Iter;
 
 mod evaluate;
 mod parser;
@@ -24,11 +26,36 @@ pub enum ASTKind {
     Never,
 }
 
+/// 如果 {
+/// }
+/// 否则 {
+/// }
+///
+/// 若非 {
+/// }
+/// 又或 {
+///
+/// }
+/// 否则 {
+///
+/// }
 #[derive(Debug, Clone)]
 pub struct IfStatement {
-    if_true: bool,
-    condition: ASTNode,
-    children: Vec<ASTNode>,
+    branch: Vec<IfBranch>,
+    otherwise: Vec<ASTNode>,
+}
+
+pub struct IfBranch {
+    pub if_true: bool,
+    pub condition: ASTNode,
+    pub body: Vec<ASTNode>,
+}
+
+impl IfStatement {
+    pub fn branches(&self) -> Chain<Iter<'_, IfBranch>, Iter<'_, IfBranch>> {
+        let always_true = IfBranch { if_true: true, condition: ASTNode { kind: ASTKind::Boolean(true) }, body: self.otherwise.clone() };
+        self.branch.iter().chain(vec![always_true].iter())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -55,7 +82,7 @@ impl ASTNode {
     }
 
     pub fn if_statement(if_true: bool, condition: ASTNode, children: Vec<ASTNode>) -> Self {
-        Self { kind: ASTKind::IfStatement(box IfStatement { if_true, condition, children }) }
+        Self { kind: ASTKind::IfStatement(box IfStatement { if_true, branch: condition, otherwise: children }) }
     }
 
     pub fn binary_expression(left: ASTNode, right: ASTNode, operator: &str) -> Self {

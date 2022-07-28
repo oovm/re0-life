@@ -1,5 +1,6 @@
 pub use self::mode::*;
 
+mod event;
 mod mode;
 
 #[derive(Debug, Clone)]
