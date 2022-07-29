@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter};
+use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Clone)]
@@ -43,12 +44,40 @@ impl From<String> for Value {
     }
 }
 
+impl Hash for Value {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Value::Null => {}
+            Value::Boolean(v) => state.write_u8(*v as u8),
+            Value::Symbol(v) => {
+                state.write_str(v);
+            }
+            Value::String(v) => {
+                state.write_str(v);
+            }
+            Value::Integer(v, s) => {
+                state.write_i64(*v);
+                state.write_str(s);
+            }
+            Value::Decimal(v, s) => {
+                state.write(&v.to_le_bytes());
+                state.write_str(s);
+            }
+        }
+    }
+}
+
+impl Eq for Value {}
+
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (_, _) => {
-                todo!()
-            }
+            (Value::Boolean(lhs), Value::Boolean(rhs)) => lhs == rhs,
+            (Value::Symbol(lhs), Value::Symbol(rhs)) => lhs == rhs,
+            (Value::String(lhs), Value::String(rhs)) => lhs == rhs,
+            (Value::Integer(lhs, ls), Value::Integer(rhs, rs)) => lhs == rhs && ls == rs,
+            (Value::Decimal(lhs, ls), Value::Decimal(rhs, rs)) => lhs == rhs && ls == rs,
+            _ => false,
         }
     }
 }

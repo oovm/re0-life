@@ -1,7 +1,9 @@
 pub use self::binary::BinaryExpression;
 use crate::value::Value;
 pub use crate::value::{get_flatten_vec, Dict};
-use std::iter::{Chain, Cloned};
+use std::collections::{BTreeMap, HashMap};
+use std::hash::Hash;
+use std::iter::{Chain, Cloned, FromIterator};
 use std::slice::Iter;
 use std::vec::IntoIter;
 
@@ -21,8 +23,7 @@ pub enum ASTKind {
     IfStatement(Box<IfStatement>),
     Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
-    Dict(Vec<ASTNode>),
-    Pair(Value, Box<ASTNode>),
+    Dict(HashMap<Value, ASTNode>),
     Value(Value),
     Never,
 }
@@ -88,16 +89,12 @@ impl ASTNode {
         Self { kind: ASTKind::Block(children) }
     }
 
-    pub fn dict(kvs: Vec<ASTNode>) -> Self {
-        Self { kind: ASTKind::Dict(kvs) }
+    pub fn dict(kvs: Vec<(Value, ASTNode)>) -> Self {
+        Self { kind: ASTKind::Dict(HashMap::from_iter(kvs.into_iter())) }
     }
 
     pub fn symbol(symbol: &str) -> Self {
         Self { kind: ASTKind::Value(Value::Symbol(symbol.to_string())) }
-    }
-
-    pub fn pair(key: Value, value: ASTNode) -> Self {
-        Self { kind: ASTKind::Pair(key, box value) }
     }
 
     pub const TRUE: Self = Self { kind: ASTKind::Value(Value::Boolean(true)) };

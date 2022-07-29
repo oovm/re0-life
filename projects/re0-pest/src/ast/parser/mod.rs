@@ -88,7 +88,7 @@ impl ParseContext {
         }
         Ok(ASTNode::dict(out))
     }
-    fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<(Value, ASTNode)> {
         let mut pairs = pairs.into_inner();
         let mut key = self.key(pairs.next().unwrap())?;
         let mut value = ASTNode::default();
@@ -101,7 +101,7 @@ impl ParseContext {
                 _ => debug_cases!(pair),
             }
         }
-        Ok(ASTNode::pair(key, value))
+        Ok((key, value))
     }
     fn parse_statements(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let pair = pairs.into_inner().next().unwrap();
