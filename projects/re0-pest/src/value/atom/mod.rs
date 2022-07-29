@@ -2,16 +2,17 @@ use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum Value {
     Null,
     Boolean(bool),
     Symbol(String),
+    String(String),
     Integer(i64, String),
     Decimal(f64, String),
 }
 
-impl Display for Value {
+impl Debug for Value {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Value::Null => write!(f, "null"),
@@ -19,13 +20,26 @@ impl Display for Value {
             Value::Symbol(v) => write!(f, "{}", v),
             Value::Integer(v, s) => write!(f, "{}{}", v, s),
             Value::Decimal(v, s) => write!(f, "{}{}", v, s),
+            Value::String(v) => write!(f, "{:?}", v),
         }
+    }
+}
+
+impl Display for Value {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
     }
 }
 
 impl From<&str> for Value {
     fn from(key: &str) -> Self {
-        Self::Symbol(key.to_string())
+        Self::String(key.to_string())
+    }
+}
+
+impl From<String> for Value {
+    fn from(s: String) -> Self {
+        Self::String(s)
     }
 }
 

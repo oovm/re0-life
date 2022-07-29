@@ -1,14 +1,17 @@
-mod evaluate;
-use re0_pest::ast::ASTKind;
 use std::collections::BTreeMap;
 
+use re0_pest::ast::ASTKind;
+
 use crate::{world::World, Result};
+
+mod evaluate;
 
 pub struct GameVM {
     pub templates: Template,
     pub world: World,
     pub experience: BTreeMap<usize, String>,
     pub item: BTreeMap<usize, String>,
+    pub print_buffer: Vec<String>,
 }
 
 pub struct Template {

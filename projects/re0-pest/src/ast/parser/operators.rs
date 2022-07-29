@@ -1,12 +1,13 @@
 use std::lazy::SyncLazy;
-use pest::iterators::Pair;
 
+use pest::iterators::Pair;
+use pest::prec_climber::Operator;
 use pest::prec_climber::{Assoc, PrecClimber};
 
 use crate::{
-    ast::{parser::ParseContext, ASTNode}, Rule,
+    ast::{parser::ParseContext, ASTNode},
+    Rule,
 };
-use pest::prec_climber::Operator;
 
 static OPERATORS: SyncLazy<PrecClimber<Rule>> = SyncLazy::new(|| {
     use Assoc::*;
@@ -47,6 +48,8 @@ impl ParseContext {
                 Rule::LT => ASTNode::binary_expression(lhs, rhs, "<"),
                 Rule::GEQ => ASTNode::binary_expression(lhs, rhs, ">="),
                 Rule::LEQ => ASTNode::binary_expression(lhs, rhs, "<="),
+                Rule::ADD_ASSIGN => ASTNode::binary_expression(lhs, rhs, "+="),
+                Rule::SUB_ASSIGN => ASTNode::binary_expression(lhs, rhs, "-="),
                 _ => debug_cases!(op),
             },
         );

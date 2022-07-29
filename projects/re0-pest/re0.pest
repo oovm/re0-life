@@ -1,6 +1,7 @@
 program = _{SOI ~ declare_statement* ~ EOI}
 statement = {
     if_statement |
+    declare_block |
     expression
 }
 declare_statement = {SYMBOL ~ SYMBOL ~ modifiers? ~ declare_block}

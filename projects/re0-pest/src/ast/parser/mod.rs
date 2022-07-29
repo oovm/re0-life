@@ -68,15 +68,25 @@ impl ParseContext {
         }
         Ok(ASTNode::declare_statement(kind, symbol, vec![], children))
     }
-    fn declare_block(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        let mut out = ASTNode::default();
+    fn list_block(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let mut out = vec![];
         for pair in pairs.into_inner() {
             match pair.as_rule() {
-                Rule::declare_pair => out = self.declare_pair(pair)?,
+                Rule::statement => out.push(self.parse_statements(pair)?),
                 _ => debug_cases!(pair),
             }
         }
-        Ok(out)
+        Ok(ASTNode::block(out))
+    }
+    fn declare_block(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let mut out = vec![];
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::declare_pair => out.push(self.declare_pair(pair)?),
+                _ => debug_cases!(pair),
+            }
+        }
+        Ok(ASTNode::dict(out))
     }
     fn declare_pair(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let mut pairs = pairs.into_inner();
@@ -86,6 +96,7 @@ impl ParseContext {
             match pair.as_rule() {
                 Rule::Key => key = self.key(pair)?,
                 Rule::declare_block => value = self.declare_block(pair)?,
+                Rule::list_block => value = self.list_block(pair)?,
                 Rule::statement => value = self.parse_statements(pair)?,
                 _ => debug_cases!(pair),
             }
@@ -97,6 +108,7 @@ impl ParseContext {
         let out = match pair.as_rule() {
             Rule::if_statement => self.if_statement(pair)?,
             Rule::expression => self.expression(pair),
+            Rule::declare_block => self.declare_block(pair)?,
             _ => debug_cases!(pair),
         };
         Ok(out)

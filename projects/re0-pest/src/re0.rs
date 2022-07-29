@@ -70,7 +70,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn statement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::statement, |state| self::if_statement(state).or_else(|state| self::expression(state)))
+                    state.rule(Rule::statement, |state| self::if_statement(state).or_else(|state| self::declare_block(state)).or_else(|state| self::expression(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]

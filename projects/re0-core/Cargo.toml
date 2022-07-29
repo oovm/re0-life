@@ -16,8 +16,13 @@ chrono = {version = "0.4.19", features = ["serde"]}
 num = {version = "0.4.0", features = ["serde"]}
 re0-pest = {version = "0.1.0", path = "../re0-pest"}
 itertools = "0.10.3"
+wasm-bindgen = {version = "0.2.82", optional = true}
 
 [dev-dependencies]
 
+[lib]
+crate-type = ["cdylib"]
+
 [features]
-default = []
+default = ["wasm"]
+wasm = ["wasm-bindgen"]

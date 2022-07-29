@@ -6,12 +6,17 @@ use crate::{world::World, GameVM};
 
 impl World {
     /// `悟性`
-    pub fn get_property(&self, name: &str) -> &Value {
+    pub fn get_property(&self, name: &str) -> Value {
+        match name {
+            "生日" | "birth_day" | "birthday" => return Value::from(self.mode.time.format_time(&self.mode.time.birth_day)),
+            &_ => {}
+        }
+
         match self.property.get(name) {
-            Some(s) => s,
+            Some(s) => s.clone(),
             None => {
                 warn!("{} 属性不存在", name);
-                &Value::Null
+                Value::Null
             }
         }
     }
@@ -37,12 +42,12 @@ impl World {
 }
 
 impl GameVM {
-    pub fn get_property(&self, name: &Value) -> &Value {
+    pub fn get_property(&self, name: &Value) -> Value {
         match name {
             Value::Symbol(s) => self.world.get_property(s),
             _ => {
                 error!("{} 不是合法的属性名", name);
-                &Value::Null
+                Value::Null
             }
         }
     }

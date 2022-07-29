@@ -11,6 +11,7 @@ edition = "2018"
 
 
 [dependencies]
+log = "0.4.17"
 pest = "2.1"
 
 [dev-dependencies]

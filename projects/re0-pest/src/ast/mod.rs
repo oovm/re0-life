@@ -9,18 +9,19 @@ mod binary;
 mod evaluate;
 mod parser;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct ASTNode {
     pub kind: ASTKind,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum ASTKind {
     Root(Vec<ASTNode>),
     Declare(DeclareStatement),
     IfStatement(Box<IfStatement>),
     Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
+    Dict(Vec<ASTNode>),
     Pair(Value, Box<ASTNode>),
     Value(Value),
     Never,
@@ -85,6 +86,10 @@ impl ASTNode {
 
     pub fn block(children: Vec<ASTNode>) -> Self {
         Self { kind: ASTKind::Block(children) }
+    }
+
+    pub fn dict(kvs: Vec<ASTNode>) -> Self {
+        Self { kind: ASTKind::Dict(kvs) }
     }
 
     pub fn symbol(symbol: &str) -> Self {
