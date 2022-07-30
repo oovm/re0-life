@@ -38,21 +38,24 @@ kw_else = {
 expression = {
     term ~ (op_infix ~ term)*
 }
-term = {data ~ call_suffix?}
-call_suffix = {
-    "(" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ ")"
+term = {
+    function | Special | Number | String | SYMBOL
+}
+function = {
+    SYMBOL ~ "(" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ ")" |
+    SYMBOL ~ "（" ~ (expression ~ (SEPARATOR ~ expression)* ~ SEPARATOR?)? ~ "）"
 }
 op_infix = _{
     GT | LT | GEQ | LEQ |
     EQ | NE |
     ADD_ASSIGN | SUB_ASSIGN
 }
-GT = @{">" | "大于"}
-LT  = @{"<" | "小于"}
-EQ = @{"==" | "等于"}
-NE = @{"!=" | "不等于"}
-GEQ = @{">=" | "大于等于" | "不小于"}
-LEQ = @{"<=" | "小于等于" | "不大于"}
+GT = @{">" | "》" | "大于"}
+LT  = @{"<" | "《" | "小于"}
+EQ = @{"==" | "等于" | "为" | "是"}
+NE = @{"!=" | "不等于" | "非" | "不是"}
+GEQ = @{">=" | "》=" | "大于等于" | "不小于"}
+LEQ = @{"<=" | "《=" | "小于等于" | "不大于"}
 ADD_ASSIGN = @{"+="}
 SUB_ASSIGN = @{"-="}
 /*====================================================================================================================*/
@@ -64,13 +67,8 @@ block      = {
     "{" ~ (statement|SEPARATOR)* ~ "}"
 }
 /*====================================================================================================================*/
-data = !{
-    Special|Number
-  | String | SYMBOL
-}
-/*====================================================================================================================*/
 ///#D19A66
-Special = @{"true"|"false"|"null"}
+Special = @{"true"|"false"|"null"|"真"|"假"|"空"}
 /*====================================================================================================================*/
 //!#D19A66: SignedNumber
 Number       = ${(Integer|Decimal) ~ SYMBOL?}

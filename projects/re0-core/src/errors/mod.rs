@@ -14,6 +14,7 @@ pub enum Re0ErrorKind {
     SimpleError(String),
     SyntaxError(String),
 }
+
 #[derive(Debug, Clone)]
 pub struct Re0Error {
     kind: Box<Re0ErrorKind>,

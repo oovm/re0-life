@@ -17,7 +17,7 @@ pub enum Rule {
     kw_else,
     expression,
     term,
-    call_suffix,
+    function,
     op_infix,
     GT,
     LT,
@@ -29,7 +29,6 @@ pub enum Rule {
     SUB_ASSIGN,
     list_block,
     block,
-    data,
     Special,
     Number,
     Decimal,
@@ -130,12 +129,12 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn term(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::term, |state| state.sequence(|state| self::data(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::call_suffix(state)))))
+                    state.rule(Rule::term, |state| self::function(state).or_else(|state| self::Special(state)).or_else(|state| self::Number(state)).or_else(|state| self::String(state)).or_else(|state| self::SYMBOL(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn call_suffix(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::call_suffix, |state| state.sequence(|state| state.match_string("(").and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.sequence(|state| self::expression(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::SEPARATOR(state)))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(")"))))
+                pub fn function(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::function, |state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.match_string("(").and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.sequence(|state| self::expression(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::SEPARATOR(state)))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(")"))).or_else(|state| state.sequence(|state| state.match_string("（").and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.sequence(|state| self::expression(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SEPARATOR(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expression(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| self::SEPARATOR(state)))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("）")))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -145,32 +144,32 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn GT(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::GT, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(">").or_else(|state| state.match_string("大于"))))
+                    state.rule(Rule::GT, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(">").or_else(|state| state.match_string("》")).or_else(|state| state.match_string("大于"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn LT(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::LT, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("<").or_else(|state| state.match_string("小于"))))
+                    state.rule(Rule::LT, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("<").or_else(|state| state.match_string("《")).or_else(|state| state.match_string("小于"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn EQ(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::EQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("==").or_else(|state| state.match_string("等于"))))
+                    state.rule(Rule::EQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("==").or_else(|state| state.match_string("等于")).or_else(|state| state.match_string("为")).or_else(|state| state.match_string("是"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn NE(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::NE, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("!=").or_else(|state| state.match_string("不等于"))))
+                    state.rule(Rule::NE, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("!=").or_else(|state| state.match_string("不等于")).or_else(|state| state.match_string("非")).or_else(|state| state.match_string("不是"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn GEQ(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::GEQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(">=").or_else(|state| state.match_string("大于等于")).or_else(|state| state.match_string("不小于"))))
+                    state.rule(Rule::GEQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string(">=").or_else(|state| state.match_string("》=")).or_else(|state| state.match_string("大于等于")).or_else(|state| state.match_string("不小于"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn LEQ(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::LEQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("<=").or_else(|state| state.match_string("小于等于")).or_else(|state| state.match_string("不大于"))))
+                    state.rule(Rule::LEQ, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("<=").or_else(|state| state.match_string("《=")).or_else(|state| state.match_string("小于等于")).or_else(|state| state.match_string("不大于"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -194,13 +193,8 @@ impl ::pest::Parser<Rule> for Re0Parser {
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn data(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::NonAtomic, |state| state.rule(Rule::data, |state| self::Special(state).or_else(|state| self::Number(state)).or_else(|state| self::String(state)).or_else(|state| self::SYMBOL(state))))
-                }
-                #[inline]
-                #[allow(non_snake_case, unused_variables)]
                 pub fn Special(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::Special, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("true").or_else(|state| state.match_string("false")).or_else(|state| state.match_string("null"))))
+                    state.rule(Rule::Special, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("true").or_else(|state| state.match_string("false")).or_else(|state| state.match_string("null")).or_else(|state| state.match_string("真")).or_else(|state| state.match_string("假")).or_else(|state| state.match_string("空"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -350,7 +344,7 @@ impl ::pest::Parser<Rule> for Re0Parser {
             Rule::kw_else => rules::kw_else(state),
             Rule::expression => rules::expression(state),
             Rule::term => rules::term(state),
-            Rule::call_suffix => rules::call_suffix(state),
+            Rule::function => rules::function(state),
             Rule::op_infix => rules::op_infix(state),
             Rule::GT => rules::GT(state),
             Rule::LT => rules::LT(state),
@@ -362,7 +356,6 @@ impl ::pest::Parser<Rule> for Re0Parser {
             Rule::SUB_ASSIGN => rules::SUB_ASSIGN(state),
             Rule::list_block => rules::list_block(state),
             Rule::block => rules::block(state),
-            Rule::data => rules::data(state),
             Rule::Special => rules::Special(state),
             Rule::Number => rules::Number(state),
             Rule::Decimal => rules::Decimal(state),
