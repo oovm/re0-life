@@ -147,4 +147,21 @@ impl DeclareStatement {
         }
         return None;
     }
+    pub fn get_modifier(&self, name: &[&str]) -> Option<&str> {
+        for key in name {
+            if let Some(v) = self.modifiers.iter().find(|x| x == key) {
+                return Some(v);
+            }
+        }
+        return None;
+    }
+    pub fn get_rarity(&self) -> &str {
+        self.get_string(&["稀有度", "rarity"]).or(self.get_modifier(&["白", "绿", "蓝", "紫", "橙", "红", "普通", "稀有", "罕见", "史诗", "传说", "神话"])).unwrap_or_default()
+    }
+    pub fn get_display_name(&self) -> &str {
+        self.get_string(&["显示", "display", "display_name"]).unwrap_or(self.symbol.as_str())
+    }
+    pub fn get_description(&self) -> &str {
+        self.get_string(&["描述", "description"]).unwrap_or(self.comment.as_str())
+    }
 }

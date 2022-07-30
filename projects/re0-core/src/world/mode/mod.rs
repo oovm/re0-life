@@ -10,7 +10,12 @@ mod time;
 
 impl Default for WorldTemplate {
     fn default() -> Self {
-        Self { mode: WorldConfig::default(), property: Default::default(), events: Default::default() }
+        Self {
+            mode: WorldConfig::default(),
+            property: Default::default(),
+            talents: Default::default(),
+            events: Default::default(),
+        }
     }
 }
 

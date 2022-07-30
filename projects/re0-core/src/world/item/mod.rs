@@ -1,3 +1,4 @@
+#[derive(Clone, Debug)]
 pub struct Talent {
     /// 标识符
     pub id: String,
