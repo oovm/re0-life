@@ -1,9 +1,10 @@
 pub use self::mode::*;
-use crate::world::event::Event;
+pub use crate::world::{event::Event, item::Talent};
 use re0_pest::value::Value;
 use std::collections::BTreeMap;
 
 mod event;
+mod item;
 mod mode;
 mod parsing;
 mod property;
@@ -12,6 +13,7 @@ mod property;
 pub struct WorldTemplate {
     pub mode: WorldConfig,
     property: BTreeMap<String, Value>,
+    talents: BTreeMap<String, Talent>,
     events: BTreeMap<String, Event>,
 }
 

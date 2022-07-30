@@ -4,6 +4,8 @@ use std::mem::take;
 use std::slice::Iter;
 use std::vec::IntoIter;
 
+use log::error;
+
 use crate::value::Value;
 pub use crate::value::{get_flatten_vec, Dict};
 
@@ -113,15 +115,36 @@ pub struct DeclareStatement {
     pub keyword: String,
     pub symbol: String,
     pub modifiers: Vec<String>,
-    pub children: Vec<ASTNode>,
+    pub property: HashMap<String, ASTNode>,
     pub comment: String,
 }
 
 impl DeclareStatement {
-    pub fn new(keyword: &str, symbol: &str, modifiers: Vec<String>, children: Vec<ASTNode>) -> Self {
-        Self { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers, children, comment: "".to_string() }
+    pub fn new(keyword: &str, symbol: &str, modifiers: Vec<String>, block: ASTNode, comment: &mut String) -> Self {
+        let mut children = HashMap::new();
+        match block.kind {
+            ASTKind::Dict(v) => {
+                for (k, v) in v {
+                    match k {
+                        Value::Symbol(s) => {
+                            children.insert(s, v);
+                        }
+                        _ => error!("非法的字段: {}", k),
+                    }
+                }
+            }
+            _ => error!("非法的{}定义: {}", keyword, symbol),
+        }
+        Self { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers, property: children, comment: take(comment) }
     }
-    pub fn with_comment(self, comment: &mut String) -> Self {
-        Self { keyword: self.keyword, symbol: self.symbol, modifiers: self.modifiers, children: self.children, comment: take(comment) }
+    pub fn get_string(&self, name: &[&str]) -> Option<&str> {
+        for key in name {
+            if let Some(v) = self.property.get(*key) {
+                if let ASTKind::Value(Value::String(s)) = &v.kind {
+                    return Some(s);
+                }
+            }
+        }
+        return None;
     }
 }

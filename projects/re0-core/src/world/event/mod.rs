@@ -9,9 +9,15 @@ use re0_pest::{
 
 use crate::{GameVM, Re0Error, Result};
 
+#[derive(Debug, Clone)]
 pub struct Event {
-    ///
-    pub name: String,
+    /// 实际的事件 id, 引用名
+    pub id: String,
+    /// 显示的名字
+    pub display_name: String,
+    /// 描述
+    pub description: String,
+    /// 是否必须手动触发
     pub manually: bool,
     ///
     pub condition: Vec<ASTNode>,

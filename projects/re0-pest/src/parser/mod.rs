@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use pest::iterators::Pair;
 use pest::Parser;
 
@@ -44,7 +46,9 @@ impl ParseContext {
         Ok(ASTNode::root(children))
     }
     fn push_document(&mut self, pairs: Pair<Rule>) {
-        self.documents.push('\n');
+        if !self.documents.is_empty() {
+            self.documents.push('\n');
+        }
         self.documents.push_str(pairs.as_str().trim_start_matches("///").trim_start_matches("、").trim());
     }
 }
@@ -54,15 +58,29 @@ impl ParseContext {
         let mut pairs = pairs.into_inner();
         let kind = pairs.next().unwrap().as_str();
         let symbol = pairs.next().unwrap().as_str();
-        let mut children = vec![];
+        let mut modifiers = vec![];
+        let mut block = ASTNode::default();
         for pair in pairs {
             match pair.as_rule() {
-                Rule::declare_block => children.push(self.declare_block(pair)?),
+                Rule::declare_block => block = self.declare_block(pair)?,
+                Rule::modifiers => modifiers = self.parse_modifiers(pair),
                 _ => debug_cases!(pair),
             }
         }
-        Ok(DeclareStatement::new(kind, symbol, vec![], children).with_comment(&mut self.documents))
+        Ok(DeclareStatement::new(kind, symbol, modifiers, block, &mut self.documents))
     }
+    fn parse_modifiers(&mut self, pairs: Pair<Rule>) -> Vec<String> {
+        let mut pairs = pairs.into_inner();
+        let mut modifiers = vec![];
+        for pair in pairs {
+            match pair.as_rule() {
+                Rule::SYMBOL => modifiers.push(raw_symbol(pair).to_string()),
+                _ => unreachable!(),
+            }
+        }
+        modifiers
+    }
+
     fn list_block(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let mut out = vec![];
         for pair in pairs.into_inner() {
@@ -139,6 +157,11 @@ impl ParseContext {
         Ok(symbol)
     }
     fn symbol(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        Ok(ASTNode::symbol(pairs.as_str().trim_matches('`')))
+        Ok(ASTNode::symbol(raw_symbol(pairs)))
     }
+}
+
+#[inline]
+fn raw_symbol(pairs: Pair<Rule>) -> &str {
+    pairs.as_str().trim_matches('`')
 }
