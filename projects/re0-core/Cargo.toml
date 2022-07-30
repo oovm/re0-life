@@ -1,6 +1,6 @@
 [package]
-name = "re0-core"
-version = "0.0.1"
+name = "re0"
+version = "0.0.2"
 authors = ["Aster <192607617@qq.com>"]
 description = "..."
 repository = "https://github.com/oovm/sub_projects"
@@ -14,15 +14,12 @@ log = "0.4.17"
 rand = {version = "0.8.5", features = ["small_rng"]}
 chrono = {version = "0.4.19", features = ["serde"]}
 num = {version = "0.4.0", features = ["serde"]}
-re0-pest = {version = "0.1.0", path = "../re0-pest"}
+re0-pest = {version = "0.2.0", path = "../re0-pest"}
 itertools = "0.10.3"
 wasm-bindgen = {version = "0.2.82", optional = true}
 
 [dev-dependencies]
 
-[lib]
-crate-type = ["cdylib"]
-
 [features]
-default = ["wasm"]
+default = []
 wasm = ["wasm-bindgen"]

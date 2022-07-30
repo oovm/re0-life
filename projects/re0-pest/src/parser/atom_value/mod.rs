@@ -2,7 +2,7 @@ use std::{f64, str::FromStr};
 
 use pest::iterators::Pair;
 
-use crate::ast::parser::ParseContext;
+use crate::parser::ParseContext;
 use crate::value::{error_span, Value};
 use crate::{Result, Rule};
 
@@ -22,7 +22,7 @@ impl Value {
 }
 
 impl ParseContext {
-    pub(super) fn number(&mut self, pairs: Pair<Rule>) -> Result<Value> {
+    pub(crate) fn number(&mut self, pairs: Pair<Rule>) -> Result<Value> {
         let mut pairs = pairs.into_inner();
         let num = pairs.next().unwrap();
         let suffix = match pairs.next() {

@@ -1,15 +1,16 @@
-pub use self::binary::BinaryExpression;
-use crate::value::Value;
-pub use crate::value::{get_flatten_vec, Dict};
-use std::collections::{BTreeMap, HashMap};
-use std::hash::Hash;
+use std::collections::HashMap;
 use std::iter::{Chain, Cloned, FromIterator};
+use std::mem::take;
 use std::slice::Iter;
 use std::vec::IntoIter;
 
+use crate::value::Value;
+pub use crate::value::{get_flatten_vec, Dict};
+
+pub use self::binary::BinaryExpression;
+
 mod binary;
 mod evaluate;
-mod parser;
 
 #[derive(Clone, Default)]
 pub struct ASTNode {
@@ -18,8 +19,7 @@ pub struct ASTNode {
 
 #[derive(Clone)]
 pub enum ASTKind {
-    Root(Vec<ASTNode>),
-    Declare(DeclareStatement),
+    Root(Vec<DeclareStatement>),
     IfStatement(Box<IfStatement>),
     Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
@@ -74,13 +74,8 @@ impl Default for ASTKind {
 }
 
 impl ASTNode {
-    pub fn root(children: Vec<ASTNode>) -> Self {
+    pub fn root(children: Vec<DeclareStatement>) -> Self {
         Self { kind: ASTKind::Root(children) }
-    }
-
-    pub fn declare_statement(keyword: &str, symbol: &str, modifiers: Vec<String>, children: Vec<ASTNode>) -> Self {
-        let s = DeclareStatement { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers, children };
-        Self { kind: ASTKind::Declare(s) }
     }
 
     pub fn if_simple(if_true: bool, condition: ASTNode, children: Vec<ASTNode>) -> Self {
@@ -115,8 +110,18 @@ impl ASTNode {
 
 #[derive(Debug, Clone)]
 pub struct DeclareStatement {
-    keyword: String,
-    symbol: String,
-    modifiers: Vec<String>,
-    children: Vec<ASTNode>,
+    pub keyword: String,
+    pub symbol: String,
+    pub modifiers: Vec<String>,
+    pub children: Vec<ASTNode>,
+    pub comment: String,
+}
+
+impl DeclareStatement {
+    pub fn new(keyword: &str, symbol: &str, modifiers: Vec<String>, children: Vec<ASTNode>) -> Self {
+        Self { keyword: keyword.to_string(), symbol: symbol.to_string(), modifiers, children, comment: "".to_string() }
+    }
+    pub fn with_comment(self, comment: &mut String) -> Self {
+        Self { keyword: self.keyword, symbol: self.symbol, modifiers: self.modifiers, children: self.children, comment: take(comment) }
+    }
 }

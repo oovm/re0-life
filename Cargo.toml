@@ -3,6 +3,7 @@ members = ["projects/*"]
 default-members = [
     "projects/re0-core",
     "projects/re0-pest",
+    "projects/re0-webgame",
 ]
 exclude = [
     "projects/re0-data",

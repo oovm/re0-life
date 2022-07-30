@@ -5,9 +5,11 @@
 pub use pest::error::Error;
 pub use pest::error::{ErrorVariant, LineColLocation};
 
-pub use self::re0::{Re0Parser, Rule};
+pub use self::parser::ParseContext;
+pub use self::re0::Rule;
 
 pub mod ast;
+mod parser;
 mod re0;
 pub mod value;
 

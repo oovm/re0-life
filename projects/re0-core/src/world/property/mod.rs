@@ -2,9 +2,9 @@ use log::{error, log, warn};
 
 use re0_pest::value::Value;
 
-use crate::{world::World, GameVM};
+use crate::{world::WorldTemplate, GameVM};
 
-impl World {
+impl WorldTemplate {
     /// `悟性`
     pub fn get_property(&self, name: &str) -> Value {
         match name {

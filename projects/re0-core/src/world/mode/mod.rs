@@ -2,15 +2,15 @@ pub use self::{
     name::{NameConfig, NameMode},
     time::{TimeManager, TimeMode},
 };
-use crate::world::{World, WorldConfig};
+use crate::world::{WorldConfig, WorldTemplate};
 use chrono::NaiveDateTime;
 
 mod name;
 mod time;
 
-impl Default for World {
+impl Default for WorldTemplate {
     fn default() -> Self {
-        Self { mode: WorldConfig::default(), property: Default::default() }
+        Self { mode: WorldConfig::default(), property: Default::default(), events: Default::default() }
     }
 }
 

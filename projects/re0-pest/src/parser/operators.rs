@@ -4,11 +4,9 @@ use pest::iterators::Pair;
 use pest::prec_climber::Operator;
 use pest::prec_climber::{Assoc, PrecClimber};
 
+use crate::parser::ParseContext;
 use crate::Result;
-use crate::{
-    ast::{parser::ParseContext, ASTNode},
-    Rule,
-};
+use crate::{ast::ASTNode, Rule};
 
 static OPERATORS: SyncLazy<PrecClimber<Rule>> = SyncLazy::new(|| {
     use Assoc::*;
@@ -37,7 +35,7 @@ macro_rules! debug_cases {
 }
 
 impl ParseContext {
-    pub(super) fn expression(&mut self, pairs: Pair<Rule>) -> ASTNode {
+    pub(crate) fn expression(&mut self, pairs: Pair<Rule>) -> ASTNode {
         let out = OPERATORS.climb(
             pairs.into_inner(),
             |pair: Pair<Rule>| match pair.as_rule() {

@@ -12,6 +12,7 @@ use crate::{GameVM, Re0Error, Result};
 pub struct Event {
     ///
     pub name: String,
+    pub manually: bool,
     ///
     pub condition: Vec<ASTNode>,
     ///
@@ -47,7 +48,7 @@ pub trait Evaluate {
 impl Evaluate for ASTNode {
     fn evaluate(&self, vm: &mut GameVM) -> Result<Value> {
         let out = match &self.kind {
-            ASTKind::Root(_) | ASTKind::Declare(_) => unreachable!(),
+            ASTKind::Root(_) => unreachable!(),
             ASTKind::IfStatement(s) => s.evaluate(vm)?,
             ASTKind::Expression(s) => s.evaluate(vm)?,
             ASTKind::Block(s) => {
@@ -57,11 +58,10 @@ impl Evaluate for ASTNode {
                 }
                 return Ok(last);
             }
-            ASTKind::Pair(_, _) => {
-                todo!()
-            }
             ASTKind::Value(v) => v.clone(),
             ASTKind::Never => unreachable!(),
+            ASTKind::FunctionCall(_) => unreachable!(),
+            ASTKind::Dict(_) => unreachable!(),
         };
         Ok(out)
     }

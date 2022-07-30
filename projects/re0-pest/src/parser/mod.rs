@@ -1,13 +1,15 @@
 use pest::iterators::Pair;
 use pest::Parser;
 
+use crate::ast::DeclareStatement;
+use crate::re0::Re0Parser;
 use crate::value::Value;
-use crate::{ast::ASTNode, Error, Re0Parser, Result, Rule};
+use crate::{ast::ASTNode, Error, Result, Rule};
 
 pub mod atom_value;
 mod operators;
 
-struct ParseContext {
+pub struct ParseContext {
     errors: Vec<Error<Rule>>,
     documents: String,
 }
@@ -16,13 +18,6 @@ impl Default for ParseContext {
     fn default() -> Self {
         Self { errors: vec![], documents: "".to_string() }
     }
-}
-
-#[test]
-fn test() {
-    let mut state = ParseContext::default();
-    let ast = state.parse(include_str!("世界.re0")).unwrap();
-    println!("{:#?}", ast);
 }
 
 macro_rules! debug_cases {
@@ -35,7 +30,7 @@ macro_rules! debug_cases {
 }
 
 impl ParseContext {
-    fn parse(&mut self, input: &str) -> Result<ASTNode> {
+    pub fn parse(&mut self, input: &str) -> Result<ASTNode> {
         let parsed = Re0Parser::parse(Rule::program, input)?;
         let mut children = vec![];
         for pair in parsed {
@@ -55,7 +50,7 @@ impl ParseContext {
 }
 
 impl ParseContext {
-    fn declare_statement(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn declare_statement(&mut self, pairs: Pair<Rule>) -> Result<DeclareStatement> {
         let mut pairs = pairs.into_inner();
         let kind = pairs.next().unwrap().as_str();
         let symbol = pairs.next().unwrap().as_str();
@@ -66,7 +61,7 @@ impl ParseContext {
                 _ => debug_cases!(pair),
             }
         }
-        Ok(ASTNode::declare_statement(kind, symbol, vec![], children))
+        Ok(DeclareStatement::new(kind, symbol, vec![], children).with_comment(&mut self.documents))
     }
     fn list_block(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let mut out = vec![];
