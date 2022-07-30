@@ -23,9 +23,16 @@ pub enum ASTKind {
     IfStatement(Box<IfStatement>),
     Expression(Box<BinaryExpression>),
     Block(Vec<ASTNode>),
+    FunctionCall(Box<ASTFunction>),
     Dict(HashMap<Value, ASTNode>),
     Value(Value),
     Never,
+}
+
+#[derive(Debug, Clone)]
+pub struct ASTFunction {
+    pub name: String,
+    pub args: Vec<ASTNode>,
 }
 
 /// 如果 {
@@ -93,10 +100,15 @@ impl ASTNode {
         Self { kind: ASTKind::Dict(HashMap::from_iter(kvs.into_iter())) }
     }
 
+    pub fn function(name: &str, args: Vec<ASTNode>) -> Self {
+        Self { kind: ASTKind::FunctionCall(box ASTFunction { name: name.to_string(), args }) }
+    }
+
     pub fn symbol(symbol: &str) -> Self {
         Self { kind: ASTKind::Value(Value::Symbol(symbol.to_string())) }
     }
 
+    pub const NULL: Self = Self { kind: ASTKind::Value(Value::Null) };
     pub const TRUE: Self = Self { kind: ASTKind::Value(Value::Boolean(true)) };
     pub const FALSE: Self = Self { kind: ASTKind::Value(Value::Boolean(false)) };
 }

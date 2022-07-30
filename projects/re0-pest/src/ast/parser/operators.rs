@@ -4,6 +4,7 @@ use pest::iterators::Pair;
 use pest::prec_climber::Operator;
 use pest::prec_climber::{Assoc, PrecClimber};
 
+use crate::Result;
 use crate::{
     ast::{parser::ParseContext, ASTNode},
     Rule,
@@ -56,17 +57,32 @@ impl ParseContext {
         return out;
     }
     fn term(&mut self, pairs: Pair<Rule>) -> ASTNode {
+        match self.try_term(pairs) {
+            Ok(o) => return o,
+            Err(e) => self.errors.push(e),
+        }
+        return ASTNode::NULL;
+    }
+    fn try_term(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let pair = pairs.into_inner().next().unwrap();
+        let out = match pair.as_rule() {
+            Rule::SYMBOL => self.symbol(pair)?,
+            Rule::Number => ASTNode::atomic(self.number(pair)?),
+            Rule::function => self.parse_function(pair),
+            _ => debug_cases!(pair),
+        };
+        Ok(out)
+    }
+    fn parse_function(&mut self, pairs: Pair<Rule>) -> ASTNode {
+        let mut f_name = "";
+        let mut args = vec![];
         for pair in pairs.into_inner() {
             match pair.as_rule() {
-                Rule::data => match self.data(pair) {
-                    Ok(o) => return o,
-                    Err(e) => {
-                        self.errors.push(e);
-                    }
-                },
-                _ => unreachable!("{:?}", pair.as_rule()),
+                Rule::SYMBOL => f_name = pair.as_str(),
+                Rule::expression => args.push(self.expression(pair)),
+                _ => debug_cases!(pair),
             }
         }
-        todo!()
+        return ASTNode::function(f_name, args);
     }
 }

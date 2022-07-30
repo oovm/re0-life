@@ -134,15 +134,6 @@ impl ParseContext {
 }
 
 impl ParseContext {
-    fn data(&mut self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        let pair = pairs.into_inner().next().unwrap();
-        let symbol = match pair.as_rule() {
-            Rule::SYMBOL => self.symbol(pair)?,
-            Rule::Number => ASTNode::atomic(self.number(pair)?),
-            _ => debug_cases!(pair),
-        };
-        Ok(symbol)
-    }
     fn key(&mut self, pairs: Pair<Rule>) -> Result<Value> {
         let head = pairs.into_inner().next().unwrap();
         let symbol = match head.as_rule() {

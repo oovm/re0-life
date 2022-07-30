@@ -17,6 +17,7 @@ impl Debug for ASTKind {
             ASTKind::Block(v) => Debug::fmt(v, f)?,
             ASTKind::Dict(v) => Debug::fmt(v, f)?,
             ASTKind::Value(v) => Debug::fmt(v, f)?,
+            ASTKind::FunctionCall(v) => Debug::fmt(v, f)?,
             ASTKind::Never => {}
         }
         Ok(())
