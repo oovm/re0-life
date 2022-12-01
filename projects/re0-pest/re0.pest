@@ -62,6 +62,8 @@ SUB_ASSIGN = @{"-="}
 list_block = {
     "[" ~ (statement|SEPARATOR)* ~ "]"
   | "【" ~ (statement|SEPARATOR)* ~ "】"
+  | "『" ~ (statement|SEPARATOR)* ~ "』"
+  | "「" ~ (statement|SEPARATOR)* ~ "」"
 }
 block      = {
     "{" ~ (statement|SEPARATOR)* ~ "}"
